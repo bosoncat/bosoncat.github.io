@@ -2,6 +2,7 @@
 date: 2017-11-15 21:33:45
 ---
 
+### 友情链接
 介绍自己之前，还是想先放一些朋友的链接，毕竟是对自己很重要滴人！
 有些是单向链接嘻嘻
 
@@ -14,7 +15,7 @@ date: 2017-11-15 21:33:45
 [这裤子没正负](https://corvo.myseu.cn/)
 带我学了超级多的东西的裕浩哥！据说裕浩哥还单身
 
-[樊悦城的博客](http://fanyc.myseu.cn/)
+[fancy's blog](http://fanyc.myseu.cn/)
 社工小哥哥 →\_ →
 
 [rikumi](https://heya.myseu.cn/)
@@ -60,3 +61,4 @@ sudo reboot;
 嘻嘻，觉得投缘的朋友可以联系我呀！
 
 E-Mail: higuoxing@outlook.com
+
