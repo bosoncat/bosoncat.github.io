@@ -9,9 +9,7 @@ favicon: /favicon.png
 
 # Comment
 # e.g disqus: seansun
-disqus:
-duoshuo:
-
+disqus: 
 # Analytics
 # google-analytics:
 ga: UA-111257861-1

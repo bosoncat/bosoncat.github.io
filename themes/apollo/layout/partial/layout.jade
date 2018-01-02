@@ -2,10 +2,13 @@ doctype
 html(lang=config.language)
     head
         include head
-    body
+    body(onload="start_()")
         .wrap
             header
-                include nav
+                .world-container
+                    include dragon
+                .nav-container
+                    include nav
             main.container
                 block container
             footer
