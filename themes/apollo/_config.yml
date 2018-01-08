@@ -2,7 +2,6 @@ menu:
     Blog: /
     Archive: /archives/
     GitHub: https://github.com/higuoxing
-    Rss: /atom.xml
     About: /about/
 
 favicon: /favicon.png
