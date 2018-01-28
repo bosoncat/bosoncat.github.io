@@ -1,0 +1,17 @@
+{
+  "name": "no-idea",
+  "version": "1.0.0",
+  "description": "no-idea",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/higuoxing/hexo-theme-no-idea"
+  },
+  "keywords": [
+    "hexo",
+    "theme",
+    "no idea"
+  ],
+  "author": "Xing GUO",
+  "license": "MIT"
+}
