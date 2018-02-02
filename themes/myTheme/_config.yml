@@ -2,11 +2,11 @@ menu:
     $Home: /
     /Blog: /archives/
     /GitHub: https://github.com/higuoxing
+    /LINKS: /links/
 
 favicon: /favicon.png
 
 # Comment
-# e.g disqus: seansun
 disqus: 
 # Analytics
 # google-analytics:

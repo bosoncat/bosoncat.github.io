@@ -4,17 +4,17 @@ date: 2017-10-20 23:02:47
 tags:
 ---
 
-​	emmm好像好久都没有更新博客了，这几天一直在调试这个视频通路，感觉很崩溃，各种奇怪的原因搞死了自己。总之，视频通路是调通了，之后的明天再说吧，这里简单记录下视频通路的搭建过程，以防以后自己再犯这些弱智的错误...
+emmm好像好久都没有更新博客了，这几天一直在调试这个视频通路，感觉很崩溃，各种奇怪的原因搞死了自己。总之，视频通路是调通了，之后的明天再说吧，这里简单记录下视频通路的搭建过程，以防以后自己再犯这些弱智的错误...
 <!--more-->
-#### 架构简介
+### 架构简介
 
-​	本系统前端由OV7725的摄像头输入经过Video转AXI_StreamXilinx IP core)输入到VDMA(Video direct memory access)构成，视频的处理通过VDMA的s2mm(stream to memory map)通道输入到ZYNQ的HP(High performance)通道进行读取及处理，为了debug的方便，在VDMA的mm2s(memory map to stream)后置了AXI_Stream转Video后，通过RGB转HDMI接显示屏，大致视频通路长这个样子...
+本系统前端由OV7725的摄像头输入经过Video转AXI_StreamXilinx IP core)输入到VDMA(Video direct memory access)构成，视频的处理通过VDMA的s2mm(stream to memory map)通道输入到ZYNQ的HP(High performance)通道进行读取及处理，为了debug的方便，在VDMA的mm2s(memory map to stream)后置了AXI_Stream转Video后，通过RGB转HDMI接显示屏，大致视频通路长这个样子...
 ![overview0](./overview0.png)
 
 
-#### 开发流程
+### 开发流程
 
-​	因为这个视频通路是我第一次搭建，所以大约用了两周左右，踩了很多的坑(有时候心态都不好了...)，主要在几方面
+因为这个视频通路是我第一次搭建，所以大约用了两周左右，踩了很多的坑(有时候心态都不好了...)，主要在几方面
 
 * 搭建视频通路一定要有合适的顺序，比如我一开始纠结在到底从前端开始搭建还是从后方开始，后来反复尝试后，选择了先搭建显示部分(VDMA_mm2s-->video_out-->RGB-->HDMI)，搭建好后先显示一张静态图片检测时序
 * 异域时钟的适配，这个我也是第一次弄异域时钟，为了方便把前端的时钟和后端显示的频率弄成了一致25MHz，所以比较方便，其他的问题准备慢慢改进
@@ -47,6 +47,18 @@ tags:
 * OV_Sensor_ML_0
 
 ![OVSensor](./OVSensor.png)
+
+| PORT             | DIRECTION | DESCRIPTION              |
+| ---------------- | --------- | ------------------------ |
+| cmos_vsync_i     | input     | CMOS传感器帧同步信号             |
+| cmos_href_i      | input     | CMOS传感器行同步信号             |
+| cmos_pclk_i      | input     | CMOS传感器像素时钟(每个上升沿传递一个像素) |
+| cmos_data_i[7:0] | input     | CMOS传感器数据总线              |
+| cmos_xclk_o      | output    | CMOS传感器驱动时钟(本设计中为25MHz)  |
+| hs_o             | output    | CMOS传感器输出视频流行同步信号        |
+| vs_o             | output    | CMOS传感器输出视频流帧同步信号        |
+| rgb_o[23:0]      | output    | CMOS传感器输出视频数据总线          |
+| vid_clk_ce       | output    | CMOS传感器输出视频流有效信号         |
 
 * Video In to AXI4-Stream
 
@@ -184,6 +196,25 @@ tags:
 * HDMI
 
 ![HDMI](./HDMI.png)
+
+| PORT          | DIRECTION | DESCRIPTION             |
+| ------------- | --------- | ----------------------- |
+| PXLCLK_I      | input     | 像素时钟(25MHz)             |
+| PXL_5X_I      | input     | 5×像素时钟(125MHz)          |
+| LOCKED_I      | input     | 相当于一个时钟使能信号(锁相环时钟稳定时为高) |
+| RST_N         | input     | 复位信号                    |
+| VGA_HS        | input     | VGA行同步信号                |
+| VGA_VS        | input     | VGA场同步信号                |
+| VGA_DE        | input     | VGA使能信号                 |
+| VGA_RGB[23:0] | input     | VGA视频数据总线               |
+| HDMI_CLK_P    | output    | HDMI差分时钟P               |
+| HDMI_CLK_N    | output    | HDMI差分时钟N               |
+| HDMI_D2_P     | output    | HDMI差分信号BIT2P           |
+| HDMI_D2_N     | output    | HDMI差分信号BIT2P           |
+| HDMI_D1_P     | output    | HDMI差分信号BIT2P           |
+| HDMI_D1_N     | output    | HDMI差分信号BIT2P           |
+| HDMI_D0_P     | output    | HDMI差分信号BIT2P           |
+| HDMI_D0_N     | output    | HDMI差分信号BIT2P           |
 
 #### 效果图
 
