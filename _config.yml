@@ -26,7 +26,9 @@ category_dir: categories
 code_dir: downloads/code
 i18n_dir: :lang
 skip_render:
-  modern_optics/**
+  - modern_optics/**
+  - gsoc18/**
+  - hs-tutorial/**
 
 
 # Writing
@@ -86,7 +88,7 @@ archive_generator:
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  #repo: https://github.com/Higuoxing/higuoxing.github.io.git
-  repo: https://git.coding.net/Higuoxing/higuoxing.coding.me.git
+  repo: https://github.com/Higuoxing/higuoxing.github.io.git
+  #repo: https://git.coding.net/Higuoxing/higuoxing.coding.me.git
   branch: master
   message: init
