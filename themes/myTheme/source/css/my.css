@@ -1,3 +1,8 @@
+html {
+    background-color: #fdf6e3;
+    color: #657b83;
+}
+
 body {
     font-family: 'sourcesanspro';
     text-align: justify;
@@ -9,22 +14,22 @@ p {
 }
 
 a {
-    color: #1A0DAB;
+    color: #b68900;
     text-decoration: none
 }
 
 a:visited {
-    color: #1A0DAB;
+    color: #b68900;
     text-decoration: none
 }
 
 a:hover {
-    color: #1A0DAB;
+    color: #b68900;
     text-decoration: underline
 }
 
 a:active {
-    color: #1A0DAB;
+    color: #b68900;
     text-decoration: none
 }
 

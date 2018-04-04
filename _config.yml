@@ -47,6 +47,10 @@ highlight:
   line_number: false
   auto_detect: false
   
+hljs:
+  enable: true
+  copy_code: false
+
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
@@ -88,7 +92,7 @@ archive_generator:
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/Higuoxing/higuoxing.github.io.git
-  #repo: https://git.coding.net/Higuoxing/higuoxing.coding.me.git
+  #repo: https://github.com/Higuoxing/higuoxing.github.io.git
+  repo: https://git.coding.net/Higuoxing/higuoxing.coding.me.git
   branch: master
   message: init

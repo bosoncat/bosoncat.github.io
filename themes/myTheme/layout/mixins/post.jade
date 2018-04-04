@@ -8,12 +8,25 @@ mixin postInfo(item)
 mixin posts()
     .post-lists
         ul.home.post-list
+            - 
+            - color_low_bound  = [74, 86, 157]
+            - color_high_bound = [220, 36,  36]
+            - color_delta      = [0,    0,   0]
+            - color_delta[0] = (color_high_bound[0] - color_low_bound[0])/site.posts.length
+            - color_delta[1] = (color_high_bound[1] - color_low_bound[1])/site.posts.length
+            - color_delta[2] = (color_high_bound[2] - color_low_bound[2])/site.posts.length
+            - color_cnter    = 0
             - page.posts.each(function (item) {
+            -   color = ['', '', '']
+            -   color[0] = parseInt(color_low_bound[0] + color_delta[0]*color_cnter).toString(16)
+            -   color[1] = parseInt(color_low_bound[1] + color_delta[1]*color_cnter).toString(16)
+            -   color[2] = parseInt(color_low_bound[2] + color_delta[2]*color_cnter).toString(16)
                 li.post-list-item
                     article.post-block
                         +postInfo(item)
-                        a.post-title-link(href= url_for(item.path))
+                        a.post-title-link(href= url_for(item.path) style='color: #'+color[0]+color[1]+color[2])
                                 != item.title
+            - color_cnter = color_cnter + 1
             - })
 
 //- Archive Page
@@ -21,6 +34,7 @@ mixin postList()
     .archive
         - var year = 0;
         - var change = false;
+        - var color  = '#FFCC80';
         - page.posts.each(function (item) {
             - var itemYear = date(item.date, 'YYYY') - 0;
             - change = year !== itemYear;
@@ -30,8 +44,9 @@ mixin postList()
             li.post-list-item
                 article.post-block
                     +postInfo(item)
-                    a.post-title-link(href= url_for(item.path))
+                    a.post-title-link(href= url_for(item.path) )
                         != item.title
+
         - })
 
 //- Post Page
