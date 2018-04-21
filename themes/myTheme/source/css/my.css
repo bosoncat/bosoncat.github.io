@@ -8,6 +8,10 @@ body {
     text-align: justify;
 }
 
+.nav {
+    text-align: center;
+}
+
 p {
     font-size: 1em;
     line-height: 150%

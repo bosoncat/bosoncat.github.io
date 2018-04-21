@@ -5,8 +5,7 @@ date: 2018-03-14 23:13:57
 #### Projects
 
 [TwoLearnOneAction](https://github.com/higuoxing/TwoLearnOneAction)
-Online quiz platform...
-东南大学两学一做在线答题平台，Node.js+mongodb+Bootstrap
+Online quiz platform...`Node.js+mongodb`
 
 [Haskell-Re](https://github.com/higuoxing/Haskell-Re)
 A toy regex engine implemented in Haskell...
@@ -20,4 +19,4 @@ A video processing system design based on ZYNQ-7000 series chip...
 #### Talks
 * A basic tutorial on Haskell programming
     Slides: [Haskell-Tutorial](https://higuoxing.com/hs-tutorial)
-    Jupyter Notebook: [Haskell-Tutorial](https://higuoxing.com/hs-tutorial/index/Haskell-Tutorial.ipynb)
+    Jupyter Notebook: [Haskell-Tutorial](https://higuoxing.com/hs-tutorial/index/hs-tutorial.ipynb) `Should be run in IHaskell`
