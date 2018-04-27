@@ -4,14 +4,14 @@ date: 2018-03-14 23:13:57
 
 #### Projects
 
-[TwoLearnOneAction](https://github.com/higuoxing/TwoLearnOneAction)
+[node-ngspice](https://github.com/higuoxing/node-ngspice)
+A frontend project for ngspice
+
+[herald-quiz-platform](https://github.com/HeraldStudio/herald-quiz-platform)
 Online quiz platform...`Node.js+mongodb`
 
 [Haskell-Re](https://github.com/higuoxing/Haskell-Re)
 A toy regex engine implemented in Haskell...
-
-[ModernOptics](https://github.com/higuoxing/ModernOptics)
-Labs for Modern Optics course...
 
 [Video Processing System](https://github.com/higuoxing/ZYNQ-7000-Video-Processing-Simple-design)
 A video processing system design based on ZYNQ-7000 series chip...
