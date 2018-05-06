@@ -16,8 +16,13 @@ tags:
 
 > 新的前端✨
 
-![node-ngspice_0](./screenshot_0.jpg)
-![node-ngspice_1](./screenshot_1.jpg)
+![node-ngspice_0](./screenshot.jpg)
+
+##### [Update 2018.05.02] 今天买了一个域名，暂时部署了一下，感觉还可以，希望给别人可以提供一些便利... 地址 [node-ngspice.xyz](http://node-ngspice.xyz)
+
+##### [Update 2018.04.29] 今天做了一点无脑的改进，改进了布局+ngspice的编译信息重定向到前端...感觉蛮不错的...
+
+##### [Update 2018.04.28] 这次将`plot option`改成了JSON形式，目的是可以实现自定义`plot legend`中显示的曲线名字 :)
 
 ##### [Update 2018.04.27] 之前发现解析数据有一些小但是影响心情的BUG，今天重写了这部分逻辑，还不错，但是暂不支持复数，因为还没想好复数该如何呈现到眼前，看心情更新:) Enjooooy it!
 
