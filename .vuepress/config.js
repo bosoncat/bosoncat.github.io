@@ -16,6 +16,7 @@ module.exports = {
       { text: '/ideas', link: '/ideas/' },
       { text: '/links', link: '/links/' }
     ],
+    ga: 'UA-111257861-1',
     search: false,
   }
 }
