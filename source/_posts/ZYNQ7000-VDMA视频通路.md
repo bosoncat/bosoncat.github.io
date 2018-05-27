@@ -4,8 +4,12 @@ date: 2017-10-20 23:02:47
 tags:
 ---
 
+## ZYNQ7000 VDMA视频通路
+
 emmm好像好久都没有更新博客了，这几天一直在调试这个视频通路，感觉很崩溃，各种奇怪的原因搞死了自己。总之，视频通路是调通了，之后的明天再说吧，这里简单记录下视频通路的搭建过程，以防以后自己再犯这些弱智的错误...
+
 <!--more-->
+
 ### 架构简介
 
 本系统前端由OV7725的摄像头输入经过Video转AXI_StreamXilinx IP core)输入到VDMA(Video direct memory access)构成，视频的处理通过VDMA的s2mm(stream to memory map)通道输入到ZYNQ的HP(High performance)通道进行读取及处理，为了debug的方便，在VDMA的mm2s(memory map to stream)后置了AXI_Stream转Video后，通过RGB转HDMI接显示屏，大致视频通路长这个样子...
