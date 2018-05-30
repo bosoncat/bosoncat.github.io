@@ -9,6 +9,7 @@ module.exports = {
       md.use(require('markdown-it-katex'));
     }
   },
+  ga: 'UA-111257861-1',
   themeConfig: {
     nav: [
       { text: '$Home', link: '/' },
@@ -16,7 +17,6 @@ module.exports = {
       { text: '/ideas', link: '/ideas/' },
       { text: '/links', link: '/links/' }
     ],
-    ga: 'UA-111257861-1',
     search: false,
   }
 }

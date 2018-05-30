@@ -15,7 +15,7 @@ tags:
 本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。
 <!--more-->
 #### Update: 2018.03.30
-这里写的比较早，可能会有一些缺漏，更新的总结请参考[hs-tutorial](https://higuoxing.com/hs-tutorial)
+这里写的比较早，可能会有一些缺漏，更新的总结请参考[hs-tutorial](https://higuoxing.com/notes/hs-tutorial)
 
 ### Introduction
 函数式编程打交道比较多的就是函数(Function)了，而函数的参数调用也是一个比较有意思的问题，惰性求值(Lazy evaluation)是Haskell的一个特性，本文主要写一写自己的看法，希望对大家有一些启发

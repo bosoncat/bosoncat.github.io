@@ -14,6 +14,7 @@ footer: Copyright © 2017-2018 Higuoxing
 | [崔庆才的博客](https://cuiqingcai.com)              | 崔庆才的博客    |
 | [Fancy's Blog](http://fanyc.myseu.cn/)            | fyc小哥哥的博客 |
 | [Herald-Studio](https://myseu.cn/)                | 小猴偷米的主页  |
+| [想活成别人喜欢的样子](http://www.fusuogang.com)                | Jimo哥的博客  |
 
 Feel free to exchange links with me :)
 

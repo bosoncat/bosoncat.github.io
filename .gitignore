@@ -6,4 +6,4 @@ node_modules/
 public/
 .deploy*/
 yarn.lock
-.vuepress/dist/*
+.vuepress/dist
