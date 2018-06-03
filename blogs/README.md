@@ -4,6 +4,7 @@
           -- Steve Jobs
 -----------
 
+### /2018/06/01 [\[ clang \] Wparentheses 的一个 bug](/blogs/clang-bug-wparentheses/)
 ### /2018/04/24 [\[ node-ngspice \] 我的ngspice配置](/blogs/node-ngspice/)
 ### /2018/03/09 [\[ Haskell-Re \] 正则表达式引擎](/blogs/haskell-re/)
 ### /2018/02/26 [\[ Subset Construction \] 子集构造法](/blogs/subset-construction/)
