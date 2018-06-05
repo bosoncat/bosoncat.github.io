@@ -10,6 +10,8 @@ tags:
 
 今天在逛论坛时，看到了有人在 `2014` 年报了这样一个 `BUG`，原贴在[Bug 18971 - Missing -Wparentheses warning](https://bugs.llvm.org/show_bug.cgi?id=18971)
 
+> [Update 2018/06/04] 我已经提交了 `PATCH`，目前等待有人帮我 `commit`: [fix: \[Bug 18971\] - Missing -Wparentheses warning](https://reviews.llvm.org/D47687)
+
 ```bash
 $ cat tmp/warning/a.cc
 #include <cassert>
@@ -96,6 +98,10 @@ bar(x && val == 4 || (!x && val == 5));
 ```
 
 这下，我们的 `bar()` 也跟 `assert()` 一样了，编译并不会给我们 `Warning` 了。
+
+### Solution
+
+解决办法呢，很简单，删掉源码的 `&& !OpLoc.isMacroID()` 就好了。看了下记录好像是 `2010` 年左右的一个没有经过 `review` 直接 `commit` 的一段代码...
 
 ### Reference
 
