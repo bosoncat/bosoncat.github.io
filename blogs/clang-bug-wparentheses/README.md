@@ -101,7 +101,95 @@ bar(x && val == 4 || (!x && val == 5));
 
 ### Solution
 
-解决办法呢，很简单，删掉源码的 `&& !OpLoc.isMacroID()` 就好了。看了下记录好像是 `2010` 年左右的一个没有经过 `review` 直接 `commit` 的一段代码...
+解决办法呢，很简单，~~删掉源码的 `&& !OpLoc.isMacroID()` 就好了。看了下记录好像是 `2010` 年左右的一个没有经过 `review` 直接 `commit` 的一段代码...~~
+
+貌似是因为在编译一些 `function-like-macros` 时，有一些不合适的位置产生了这些 `warning` ，十分烦人，所以被B掉了... 比如说
+
+```c++
+#define VOID_(op0, op1, x, y, z) ( (void)(x op0 y op1 z) )
+```
+
+我的解决方法是，判断操作数与操作符的来源，比如说：
+
+> 操作符和操作数都来自同一个位置的宏参数，那么这个表达式你是可以自己判断优先级并添加合适的括号来防止误判。所以编译器是可以产生一个 `warning` 来提醒你
+
+```c++
+VOID_(&&, ||, x && y || z, y, z)
+```
+
+因为你可以自己决定操作数的结合方式添加合适的括号，比如
+
+```c++
+VOID_(&&, ||, (x && y || z), y, z)
+```
+
+> 操作符和操作数没有来自同一个位置的宏参数，那么这个表达式是不应该直接的被武断的认为是逻辑问题，因为操作符位置是可以使用其他的操作符的，并不一定是逻辑操作符，所以编译器不应该抛出烦人的 `warning`
+
+```c++
+VOID_(&&, ||, x, y, z)
+```
+
+因为如果想添加括号，就只能在函数宏的函数体内部加，像这样
+
+```c++
+#define VOID_(op0, op1, x, y, z) ( (void)((x op0 y) op1 z) )
+```
+
+但是这样对复用就产生了影响，比如 `VOID_(+, *, 1, 2, 3)` 就会被展开为 `(1 + 2) * 3`，而你可能只想要 `1 + 2 * 3`
+
+所以，解决方法就是判断操作符和操作数的位置，修改一下 `clang` 判断是否生成 `warning` 的逻辑
+
+```c++
+if ((OR操作符来自宏参数 && 左操作数来自宏参数) || 
+    (OR操作符来自宏参数 && 右操作数来自宏参数)) {
+  if (OR操作符的参数位置 == 左操作数的参数位置) {
+    检查左操作数
+  }
+  if (OR操作符的参数位置 == 右操作数的参数位置) {
+    检查右表达式
+  }
+}
+```
+
+```c++
+
+/// DiagnoseBinOpPrecedence - Emit warnings for expressions with tricky
+/// precedence.
+static void DiagnoseBinOpPrecedence(Sema &Self, BinaryOperatorKind Opc,
+                                    SourceLocation OpLoc, Expr *LHSExpr,
+                                    Expr *RHSExpr){
+//// Some codes ...
+
+    // Warn about arg1 || arg2 && arg3, as GCC 4.3+ does.
+  // We don't warn for 'assert(a || b && "bad")' since this is safe.
+  if (Opc == BO_LOr) {
+    if (!OpLoc.isMacroID()) {
+      // Operator is not in macros
+      DiagnoseLogicalAndInLogicalOrLHS(Self, OpLoc, LHSExpr, RHSExpr);
+      DiagnoseLogicalAndInLogicalOrRHS(Self, OpLoc, LHSExpr, RHSExpr);
+    } else {
+      // This Expression is expanded from macro
+      SourceLocation LHSExpansionLoc, OpExpansionLoc, RHSExpansionLoc;
+      if ((Self.getSourceManager().isMacroArgExpansion(OpLoc, 
+                                                      &OpExpansionLoc) &&
+          Self.getSourceManager().isMacroArgExpansion(LHSExpr->getExprLoc(),
+                                                      &LHSExpansionLoc)) ||
+          (Self.getSourceManager().isMacroArgExpansion(OpLoc, 
+                                                      &OpExpansionLoc) &&
+          Self.getSourceManager().isMacroArgExpansion(RHSExpr->getExprLoc(),
+                                                      &LHSExpansionLoc))) {
+        if (OpExpansionLoc == LHSExpansionLoc) {
+          DiagnoseLogicalAndInLogicalOrLHS(Self, OpLoc, LHSExpr, RHSExpr);  
+        }
+        if (OpExpansionLoc == RHSExpansionLoc) {
+          DiagnoseLogicalAndInLogicalOrRHS(Self, OpLoc, LHSExpr, RHSExpr);
+        }
+      }
+    }
+  }
+//// Some other codes
+}
+```
 
 ### Reference
 
