@@ -4,6 +4,14 @@ date: 2018-03-14 23:13:57
 footer: Copyright © 2017-2018 Higuoxing
 ---
 
+### Notes
+
+* A basic tutorial on Haskell programming
+
+    Slides: [Haskell-Tutorial](/notes/hs-tutorial)
+
+    Jupyter Notebook: [Haskell-Tutorial](/notes/hs-tutorial/hs-tutorial.ipynb) `Should be run in IHaskell`
+
 ### Projects
 
 [fake-puppy](https://github.com/higuoxing/fake-puppy)
@@ -26,9 +34,3 @@ footer: Copyright © 2017-2018 Higuoxing
 
 > A video processing system design based on ZYNQ-7000 series chip...
 
-### Talks
-* A basic tutorial on Haskell programming
-
-    Slides: [Haskell-Tutorial](/notes/hs-tutorial)
-
-    Jupyter Notebook: [Haskell-Tutorial](/notes/hs-tutorial/hs-tutorial.ipynb) `Should be run in IHaskell`
