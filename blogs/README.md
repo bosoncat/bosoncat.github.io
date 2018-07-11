@@ -4,6 +4,7 @@
           -- Steve Jobs
 -----------
 
+### /2018/07/10 [\[ Vivado \] 更好的管理 Vivado 项目](/blogs/manage-vivado-projects/)
 ### /2018/06/23 [\[ NeoVim \] 迁移到 NeoVim](/blogs/move-to-nvim/)
 ### /2018/06/01 [\[ clang \] Wparentheses 的一个 bug](/blogs/clang-bug-wparentheses/)
 ### /2018/04/24 [\[ node-ngspice \] 我的ngspice配置](/blogs/node-ngspice/)
