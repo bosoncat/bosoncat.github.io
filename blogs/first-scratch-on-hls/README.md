@@ -86,7 +86,7 @@ exit
 
 到这里，我们已经可以生成 IP 核了！不过，现在生成的 IP 核的控制信号是很复杂的，一般我们喜欢把控制信号以及速度要求不高的数据信号修改为 AXI-Lite 总线形式的，打开 `huffman_encoding.cpp` 添加几句编译器的编译选项
 
-```c++
+```cpp
 void huffman_encoding(
   /* input  */ Symbol symbol_histogram[INPUT_SYMBOL_SIZE],
   /* output */ PackedCodewordAndLength encoding[INPUT_SYMBOL_SIZE],
