@@ -14,4 +14,5 @@
 ### /2018/02/03 [\[ Haskell \] 惰性求值(Lazy evaluation)](/blogs/haskell-lazy-evaluation/)
 ### /2017/10/20 [\[ ZYNQ-7000 \] VDMA 视频通路](/blogs/zynq-7000-VDMA/)
 ### /2017/09/09 [\[ STM32 \] OSX 下编译STM32程序](/blogs/build-stm32-programme-on-macos/)
-### /2017/08/17 [\[ 量子力学 \] 简谐振子模型](/blogs/quantum-harmonic-oscillator/)
+### /2017/06/17 [\[ 量子力学 \] 简谐振子模型](/blogs/quantum-harmonic-oscillator/)
+### /2017/05/01 [\[ 量子力学 \] 入门笔记](/notes/quantum-harmonic-oscillator/final_essay.pdf)
