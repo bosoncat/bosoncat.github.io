@@ -83,7 +83,11 @@ exit
 在当前文件夹打开 Vivado HLS 命令行，Linux 下可以直接把 `vivado_hls` 添加到环境变量，Windows 下叫做 `Vivado HLS Command  Line Prompt`，输入 `vivado_hls -f huffman_encoding.tcl` 等待脚本运行完毕，就可以看到生成的 IP 核了。
 
 ##### Known issues: 因为原作者的开发环境是 Linux 系统（因为他的 huffman.random256.golden 文件的编码形式是 Linux 下的编码形式，与 Windows 平台是不同的，所以进行 C 仿真或者联合仿真的时候每一行都会报错的，解决办法是注释掉csim_design 那一行，或者等脚本跑完使用 
-```axi-huffman-encoding-core/huffman_encoding.proj/solution/csim/build/huffman.random256.out```
+
+```bash
+axi-huffman-encoding-core/huffman_encoding.proj/solution/csim/build/huffman.random256.out
+```
+
 替换掉 golden 文件，因为这是由你使用的系统所生成，所以文本的换行符就是根据你的系统来的，谁叫你们不使用 Linux 呢？ :P）
 
 到这里，我们已经可以生成 IP 核了！不过，现在生成的 IP 核的控制信号是很复杂的，一般我们喜欢把控制信号以及速度要求不高的数据信号修改为 AXI-Lite 总线形式的，打开 `huffman_encoding.cpp` 添加几句编译器的编译选项
