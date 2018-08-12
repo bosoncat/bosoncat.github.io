@@ -14,7 +14,6 @@ module.exports = {
     nav: [
       { text: '$Home', link: '/' },
       { text: '/bλogs', link: '/blogs/' },
-      { text: '/ideas', link: '/ideas/' },
       { text: '/links', link: '/links/' }
     ],
     search: false,
