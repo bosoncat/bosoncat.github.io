@@ -22,6 +22,7 @@ footer: Copyright © 2017-2018 Higuoxing
 ### Resources
 | Where?                                            | What?                                  |
 |:-------------------------------------------------:|:--------------------------------------:|
+| [侯吉旋老师的主页](http://blog.sciencenet.cn/u/jixuanhou) | 很有趣的老师，有很多科普文 |
 | [Matt Might教授的主页](http://matt.might.net/)    | 主要有一些程式语言的有趣话题，很好的学习资源 |
 | [Mike Bostock](https://bost.ocks.org/mike/)       | D3.js 的发起者，很多数据可视化的资料和算法 |
 
