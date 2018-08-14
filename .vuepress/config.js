@@ -12,9 +12,10 @@ module.exports = {
   ga: 'UA-111257861-1',
   themeConfig: {
     nav: [
-      { text: '$Home', link: '/' },
-      { text: '/bλogs', link: '/blogs/' },
-      { text: '/links', link: '/links/' }
+      { text: '$Home'   , link: '/' },
+      { text: '/bλogs'  , link: '/blogs/' },
+      { text: '/gallery', link: 'https://bl.ocks.org/Higuoxing' },
+      { text: '/links'  , link: '/links/' }
     ],
     search: false,
   }
