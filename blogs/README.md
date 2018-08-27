@@ -5,6 +5,8 @@
 -----------
 ### Notes
 
+### /2018/08/25 [\[ C++ \] Value Categories in C++](/notes/value-categories-in-cpp/value-categories-in-cpp.pdf)
+
 ### /2017/05/01 [\[ 量子力学 \] 入门笔记](/notes/quantum-harmonic-oscillator/introduction-to-quantum-mechanics.pdf)
 ### /2018/03/14 [\[ Haskell \] Introduction to Haskell](/notes/hs-tutorial) 
 > IPython Notebook available for [download](/notes/hs-tutorial/hs-tutorial.ipynb)

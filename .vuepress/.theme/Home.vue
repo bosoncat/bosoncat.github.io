@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    <div class="hero">
       <p class="action" v-if="data.actionText && data.actionLink">
         <NavLink class="action-button" :item="actionLink"/>
       </p>
