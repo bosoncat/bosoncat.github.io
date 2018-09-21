@@ -2,8 +2,11 @@
 //
 
 module.exports = {
-  title: 'Higuoxing',
-  description: '',
+  title: '/dev/urandom',
+  description: 'Generating everything ...',
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.png' }]
+  ],
   markdown: {
     config: md => {
       md.use(require('markdown-it-katex'));
