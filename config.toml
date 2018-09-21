@@ -1,0 +1,31 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "/dev/urandom"
+theme = "xmin"
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+preserveTaxonomyNames = true
+footnotereturnlinkcontents = "↩"
+
+[permalinks]
+    post = "/post/:year/:month/:day/:slug/"
+    note = "/note/:year/:month/:day/:slug/"
+
+[[menu.main]]
+    name = "$Home"
+    url = "/"
+    weight = 1
+[[menu.main]]
+    name = "Archives"
+    url = "/archives/"
+    weight = 2
+[[menu.main]]
+    name = "Links"
+    url = "/links/"
+    weight = 3
+[[menu.main]]
+    name = "Subscribe"
+    url = "/index.xml"
+
+[params]
+    description = "A website built through Hugo and blogdown."
+    footer = "&copy;  2017 -- 2018 [Higuoxing](https://higuoxing.com/) | Powered by [Hugo](https://github.com/gohugoio/hugo) | Theme: [Xmin](https://github.com/yihui/hugo-xmin)"
