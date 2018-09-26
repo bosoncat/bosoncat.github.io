@@ -1,7 +1,6 @@
 ---
 title: "LLVM Passes"
 date: 2018-09-22T19:49:49+08:00
-draft: true
 ---
 
 ### Introduction
@@ -213,7 +212,7 @@ The basic usage of *BasicBlockPass* is pretty like *FunctionPass*, but focusing 
 
 ### Conclusion
 
-This post only gives an overview on LLVM Passes, and gives some simple& easy examples. For some details, I would like to talk about them in series articles. All the codes in this post are available at [github](https://github.com/Higuoxing/blog-source). If you find any mistakes or anything makes you uncomfortable, please contact me :)
+This post only gives an overview on LLVM Passes, and gives some simple& easy examples. For some details, I would like to talk about them in series articles. If you find any mistakes or anything makes you uncomfortable, please contact me :)
 
 ### Further Reading
 
