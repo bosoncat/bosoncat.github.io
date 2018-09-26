@@ -34,7 +34,7 @@ llvm::BasicBlock::iterator  /* iterate to walk Instructions inside BasicBlock */
 
 ### LLVM Passes
 
-There are 8 basic Passes class, *ImmutablePass*, *ModulePass*, *CallGraphSCCPass*, *FunctionPass*, *LoopPass*, *RegionPass*, *BasicBlockPass* and *MachineFunctionPass*. They are all inherited from class *Pass*. So, LLVM Pass Framework will excute our Pass efficiently, according to the class that our Pass derived from.
+There are multiple Passes class, *ImmutablePass*, *ModulePass*, *CallGraphSCCPass*, *FunctionPass*, *LoopPass*, *RegionPass*, *BasicBlockPass* and *MachineFunctionPass*. They are all inherited from class *Pass*. So, LLVM Pass Framework will excute our Pass efficiently, according to the class that our Pass derived from.
 
 #### ImmutablePass
 
@@ -103,12 +103,56 @@ int main() {
 
 ![callgraph](/archives/llvm-passes/callgraph.png)
 
-Each nodes in a call graph represents a function call, and the edges represents a function call (from its begining to its ending). *SCC* means "Strongly Connected Component" (See: [Wikipedia](https://en.wikipedia.org/wiki/Strongly_connected_component)).
+Each nodes in a call graph represents a function call, and the edges represents a function call (from its begining to its ending). *SCC* means "Strongly Connected Component" (See: [Wikipedia](https://en.wikipedia.org/wiki/Strongly_connected_component)). 
 
-Here is a small Pass demo using *CallGraphSCCPass*, which prints the nodes and function calls in a program.
+e.g. Simple *CallGraphSCCPass* that dumps call graph info
 
 ```cpp
+struct SimpleCallGraphSCCPass: public CallGraphSCCPass {
+  static char ID;
+  SimpleCallGraphSCCPass(): CallGraphSCCPass(ID) {  }
 
+  bool runOnSCC(CallGraphSCC &SCC) override {
+    errs() << " --- Enter Call Graph SCC ---\n";
+    for (auto &G : SCC) {
+      G->dump();
+    }
+    return false;
+    errs() << " --- end of CallGraphSCC ---\n";
+  }
+};
+```
+
+Execite this Pass will get
+
+```sh
+ --- Enter Call Graph SCC ---
+Call graph node for function: '_Z7plusOnei'<<0x7fdf04c04160>>  #uses=4
+
+ --- Enter Call Graph SCC ---
+Call graph node for function: '_Z7plusTwoi'<<0x7fdf04c041e0>>  #uses=2
+  CS<0x7fdf04d05790> calls function '_Z7plusOnei'
+  CS<0x7fdf04d05fa0> calls function '_Z7plusOnei'
+
+ --- Enter Call Graph SCC ---
+Call graph node <<null function>><<0x7fdf04c04100>>  #uses=1
+
+ --- Enter Call Graph SCC ---
+Call graph node for function: 'printf'<<0x7fdf04c043a0>>  #uses=2
+  CS<0x0> calls external node
+
+ --- Enter Call Graph SCC ---
+Call graph node for function: 'main'<<0x7fdf04c042c0>>  #uses=1
+  CS<0x7fdf04d06ce0> calls function '_Z7plusTwoi'
+  CS<0x7fdf04d06e30> calls function '_Z7plusOnei'
+  CS<0x7fdf04d07088> calls function 'printf'
+
+ --- Enter Call Graph SCC ---
+Call graph node <<null function>><<0x7fdf04c040d0>>  #uses=0
+  CS<0x0> calls function '_Z7plusOnei'
+  CS<0x0> calls function '_Z7plusTwoi'
+  CS<0x0> calls function 'main'
+  CS<0x0> calls function 'printf'
 ```
 
 #### FunctionPass
@@ -161,9 +205,11 @@ The basic usage of *BasicBlockPass* is pretty like *FunctionPass*, but focusing 
 
 #### RegionPass
 
-[*RegionPass*](http://llvm.org/doxygen/classllvm_1_1RegionPass.html) visit the basic blocks that not in loops in each function.
+[*RegionPass*](http://llvm.org/doxygen/classllvm_1_1RegionPass.html) visit the basic blocks that not in loops in each function. This Pass is not so widely used, so I will not give a simple demo on this Pass.
 
 #### MachineFunctionPass
+
+[*MachineFunctionPass*](http://llvm.org/doxygen/classllvm_1_1MachineFunctionPass.html) is a machine dependent Pass. This Pass is a part of code generator in LLVM framework. Hence, this Pass cannot be run using *opt* command.
 
 ### Conclusion
 
