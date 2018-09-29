@@ -4,6 +4,7 @@ python:
     - "3.6"
 
 script:
+    - apt install hugo
     - hugo
 
 deploy:
