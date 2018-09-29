@@ -12,7 +12,7 @@ deploy:
   target-branch: master
   keep-history: true
   skip-cleanup: true
-  github-token: $TRAVIS_ACCESS_TOKEN  # Set in the settings page of your repository, as a secure variable
+  github-token: $TRAVIS_ACCESS_TOKEN
   keep-history: true
   on:
     branch: dev-hugo
