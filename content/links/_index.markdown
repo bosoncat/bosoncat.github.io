@@ -5,7 +5,7 @@ title: Links
 Below are some awesome pages of my friends or good resources; Feel free to contact me if you want to exchange links with me :)
 
 | Where?                                            | What?                                  |
-|:-------------------------------------------------:|:--------------------------------------:|
+|:------------------------------------------------- |:-------------------------------------- |
 | [浅浅的博客](https://seujxh.wordpress.com/)       | 浅浅的博客  |
 | [我的小米粥分你一半](https://corvo.myseu.cn/)     | FYH 的博客    |
 | [Max Qi](https://cherishher.github.io/)           | Max Qi 的博客   |
