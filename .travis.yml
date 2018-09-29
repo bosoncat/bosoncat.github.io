@@ -4,8 +4,7 @@ python:
     - "3.6"
 
 script:
-    - sudo apt install hugo
-    - hugo
+    - hugo-bin/hugo
 
 deploy:
   provider: pages
