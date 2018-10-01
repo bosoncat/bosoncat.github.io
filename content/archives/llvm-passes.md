@@ -6,11 +6,11 @@ date: 2018-09-22T19:49:49+08:00
 
 ### Introduction
 
-One of the most important parts of a compiler is the optimization system. In LLVM, these works are done by *LLVM Pass Framework*. LLVM Passes perform various transforms/optimizations over functions, modules and so on. Besides, owing to its perfect modular design, passes could be combined and scheduled to construct successful compilers, like GHC, Swift etc. If you interested in the ideas behind the LLVM compiler infrastructure, I recommend going through this article [LLVM - The Architecture of Open Source Applications](http://www.aosabook.org/en/llvm.html) by Chris Lattner. This article is my notes on *LLVM Passes Framework*, mostly are dumped from LLVM websites, see my footnotes.
+One of the most important parts of a compiler is the optimization system. In LLVM, these works are done by *LLVM Pass Framework*. LLVM Passes perform various transforms/optimizations over functions, modules and so on. Besides, owing to its perfect modular design, passes could be combined and scheduled to construct successful compilers, like GHC, Swift etc. If you are interested in the ideas behind the LLVM compiler infrastructure, I recommend you going through this article [LLVM - The Architecture of Open Source Applications](http://www.aosabook.org/en/llvm.html) by Chris Lattner. This article is my notes on *LLVM Passes Framework*, mostly are dumped from LLVM websites, see my footnotes.
 
 ### Overview
 
-If you are familiar with LLVM IR, you will not surprised that LLVM Passes are divided into several different levels (*Module*, *Function*, *BasicBlock* and *Instruction*) to handle different optimizations or transforms. Usually, a single source file can be treated as a *Module*, which contained *Functions*. A *Function* can has *BasicBlocks*, which contains *Instructions*. These abstract structures (except *Module*), all are *Value* in LLVM. Besides, *Module*, *Function* and *BasicBlock* are iterable.
+If you are familiar with LLVM IR, you will not surprised that LLVM Passes are divided into several different levels (*Module*, *Function*, *BasicBlock* and *Instruction*) to handle different types of optimizations or transforms. Usually, a single source file can be treated as a *Module*, which contained *Functions*. A *Function* can has *BasicBlocks*, which contains *Instructions*. These abstract structures (except *Module*), all are *Value* in LLVM. Besides, *Module*, *Function* and *BasicBlock* are iterable.
 
 ```cpp
 llvm::Module::iterator      /* iterate to walk Functions inside Module */
@@ -34,7 +34,7 @@ llvm::BasicBlock::iterator  /* iterate to walk Instructions inside BasicBlock */
 
 ### LLVM Passes
 
-There are multiple Passes class, *ImmutablePass*, *ModulePass*, *CallGraphSCCPass*, *FunctionPass*, *LoopPass*, *RegionPass*, *BasicBlockPass* and *MachineFunctionPass*. They are all inherited from class *Pass*. So, LLVM Pass Framework will excute our Pass efficiently, according to the class that our Pass derived from.
+There are multiple Passes class, *ImmutablePass*, *ModulePass*, *CallGraphSCCPass*, *FunctionPass*, *LoopPass*, *RegionPass*, *BasicBlockPass* and *MachineFunctionPass*. They are all inherited from class *Pass*. So, LLVM Pass Framework will excute our Pass efficiently, depending on the class that our Pass derived from. I will not focus on all these class listed, only give some simple examples.
 
 #### ImmutablePass
 
