@@ -1,5 +1,6 @@
 ---
 title: Value Categories in C++
+tags: ["C++"]
 date: 2018-09-16T11:15:00+08:00
 ---
 

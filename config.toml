@@ -7,6 +7,9 @@ preserveTaxonomyNames = true
 disqusShortname = "higuoxing"
 footnotereturnlinkcontents = "↩"
 
+[taxonomies]
+  tag = "tags"
+
 [permalinks]
     post = "/post/:year/:month/:day/:slug/"
     note = "/note/:year/:month/:day/:slug/"

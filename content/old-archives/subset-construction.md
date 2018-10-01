@@ -1,7 +1,7 @@
 ---
 title: 子集构造法(Subset construction)
 date: 2018-02-26 14:56:15
-tags:
+tags: ["Algorithm"]
 ---
 
 子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了[Gist](https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3)，项目地址: [hregex](https://github.com/higuoxing/hregex)

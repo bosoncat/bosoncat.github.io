@@ -1,7 +1,7 @@
 ---
 title: clang Wparentheses 的一个 BUG
 date: 2018-06-01 00:08:38
-tags:
+tags: ["Clang"]
 ---
 
 最近在看一点编译器的东西，感觉很神奇，本来想自己实现一个玩具的编译器，但是还是因为时间不足所以暂时搁置了，就一直在看一点有关 `LLVM` 的科普文。`LLVM` 真是个神奇的东西，这里推荐一个有趣教程 [Kaleidoscope-Implementing a Language with LLVM](http://llvm.org/docs/tutorial/index.html)，从简单的 `Lexer` 到 `AST` 再到后面的 `JIT` 都搞得十分有趣，特别值得一看。

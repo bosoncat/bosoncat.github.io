@@ -1,7 +1,7 @@
 ---
 title: 「node-ngspice」我的ngspice配置
 date: 2018-04-24 15:45:21
-tags:
+tags: ["Side Topic"]
 ---
 
 这是一个最近花了整整一天写的很草率的项目...不过肯定会完善的，至于接下来使用什么前端框架，打算敲定`vue.js`了...
