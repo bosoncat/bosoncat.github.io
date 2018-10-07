@@ -1,6 +1,3 @@
----
-title: Earlier Posts
----
 
 ### Notes
 
