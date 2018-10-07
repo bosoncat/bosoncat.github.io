@@ -1,5 +1,12 @@
 ---
-title: Archives
+title: Earlier Posts
 ---
 
-* 2018/09/01& earlier [Posts](/old-archives/)
+### Notes
+
+* 2018/03/14 [\[ Haskell \] Introduction to Haskell](/notes/hs-tutorial) 
+* 2017/06/17 [\[ 量子力学 \] 简谐振子模型](/old-archives/harmonic-oscillator.pdf)
+* 2017/05/01 [\[ 量子力学 \] 入门笔记](/old-archives/introduction-to-quantum-mechanics.pdf)
+
+### Blogs
+
