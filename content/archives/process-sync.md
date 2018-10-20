@@ -5,7 +5,7 @@ date: 2018-10-19T15:51:05+08:00
 
 ### Introduction
 
-国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 `(semaphore)`，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)
+国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 `(semaphore)`，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)，所有代码可以在 [Github]() 找到
 
 ### 生产者-消费者模型 (Producer–Consumer Problem)
 
@@ -170,3 +170,74 @@ Philosopher 5 is thinking
 ...
 ```
 
+### 吸烟者问题 (Cigarette-Smoker problem)
+也是课本上的几个小问题之一，问题描述与解决方案可以参考[这里](http://www.cs.umd.edu/~hollings/cs412/s96/synch/smokers.html)
+
+#### 信号量定义
+
+```go
+var (
+	smoker_match = make(semaphore, 1)   // 烟草和纸的信号量
+	smoker_paper = make(semaphore, 1)   // 火柴和烟草的信号量
+	smoker_tobacco = make(semaphore, 1) // 火柴和纸的信号量
+	smoking_done = make(semaphore, 1)   // 吸完烟的信号量
+)
+```
+
+#### 供应者和吸烟者进程
+
+```go
+func provider() {
+	for {
+		random := rand.Intn(3)
+		switch (random) {
+		case 0:
+			smoker_match.V()    // 唤醒拥有火柴的吸烟者进程
+		case 1:
+			smoker_paper.V()    // 唤醒拥有卷烟纸的吸烟者进程
+		case 2:
+			smoker_tobacco.V()  // 唤醒拥有烟草的吸烟者进程
+		}
+		smoking_done.P()            // 等待吸烟者吸完继续发放材料					
+	}
+}
+
+// 拥有火柴的吸烟者进程，其余类似不予赘述
+func smoker_0() {
+	for {
+		smoker_match.P()
+		fmt.Println("Smoker who has match is smoking")
+		smoking_done.V()
+	}
+}
+```
+
+#### 初始化变量
+
+```go
+func init() {
+	smoking_done.V()
+
+}
+
+func main() {
+	go provider()
+	go smoker_0()
+	go smoker_1()
+	go smoker_2()
+	time.Sleep(time.Duration(5) * time.Millisecond)
+	return
+}
+```
+
+#### 打印结果
+
+```sh
+$ ./cigarette-smoker
+Smoker who has tobacco is smoking
+Smoker who has tobacco is smoking
+Smoker who has paper is smoking
+Smoker who has match is smoking
+Smoker who has match is smoking
+...
+```
