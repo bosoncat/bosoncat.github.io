@@ -30,9 +30,10 @@ var (
 func (sema *semaphore) P() {
 	for {
 		if len(*sema) > 0 {
-			<- *sema
+			<- *sema    // 消耗一个资源
 			break
 		}
+		runtime.Gosched()   // 把控制权移出
 	}
 }
 
@@ -40,9 +41,10 @@ func (sema *semaphore) P() {
 func (sema *semaphore) V() {
 	for {
 		if len(*sema) < cap(*sema) {
-			*sema <- 1
+			*sema <- 1  // 释放一个资源
 			break
 		}
+		runtime.Gosched()   // 把控制权移出
 	}
 }
 ```
@@ -104,4 +106,55 @@ $ ./producer-consumer
 [Producer] Produce 1. Now we have 1 items.
 [Producer] Produce 1. Now we have 2 items.
 [Producer] Produce 1. Now we have 3 items.
+...
 ```
+
+### 哲学家进餐问题 (Dining Philosophers Problem)
+关于问题描述可以参照操作系统的书籍或者 [Wikipedia](https://en.wikipedia.org/wiki/Dining_philosophers_problem)，关于更详细的解析可以看[这里](https://pages.mtu.edu/~shene/NSF-3/e-Book/MUTEX/TM-example-philos-1.html)，这里我们采取只有哲学家两边的筷子都可用时才允许他进餐的策略
+
+#### 初始变量
+```go
+var (
+	chopstics = make([]semaphore, 5)  // 哲学家们的筷子
+	mutex   = make(semaphore, 1)      // 互斥锁
+)
+
+func init() {
+	for i := 0; i < 5; i ++ {
+		chopstics[i] = make(semaphore, 1)
+		chopstics[i].V()          // 释放筷子
+	}
+	mutex.V()                         // 释放互斥锁
+}
+```
+
+#### 进餐
+```go
+func dining(i int) {
+	for {
+		mutex.P()                 // 上锁
+		chopstics[i].P()          // 取筷子
+		chopstics[(i+1)%5].P()
+		mutex.V()                 // 开锁
+		fmt.Printf("Philosopher %v is eating\n", i+1)
+		chopstics[i].V()          // 释放筷子
+		chopstics[(i+1)%5].V()
+		fmt.Printf("Philosopher %v is thinking\n", i+1) // 思考
+	}
+}
+```
+
+#### 打印结果
+```sh
+$ ./dining-philosophers
+Philosopher 4 is eating
+Philosopher 4 is thinking
+Philosopher 2 is eating
+Philosopher 2 is thinking
+Philosopher 2 is eating
+Philosopher 2 is thinking
+Philosopher 5 is eating
+Philosopher 5 is thinking
+...
+```
+
