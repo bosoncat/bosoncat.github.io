@@ -244,4 +244,4 @@ Smoker who has match is smoking
 
 ### Conclusion
 
-以上的代码均以好玩，简单为目的。Go 真的很有趣，可以像上面那样用类似伪码的形式把进程同步的小问题解决掉，我很喜欢。具体 `goroutine` 以及 `go channel` 的用法和原理可以到 [golang.org](https://golang.org) 参考。
+以上的代码均以好玩，简单为目的。Go 真的很有趣，可以像上面那样用类似伪码的形式把进程同步的小问题解决掉，我很喜欢。具体 `goroutine` 以及 `go channel` 的用法和原理可以到 `[golang.org](https://golang.org)` 参考。
