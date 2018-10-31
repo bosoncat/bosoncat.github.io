@@ -8,7 +8,7 @@ title: "Home"
 
 Great! You got here! This is *Xing* 's home page. This is the place where I dump interesting things or some projects I am working on. Hope this website could bring you some useful or fun infomation. You could find me on these sites
 <a href="https://keybase.io/higuoxing"><i class="fab fa-keybase" style="font-size: 20px;"></i></a>
-<a href="https://twitter.com/higuoxing"><i class="fab fa-twitter" style="font-size: 20px;"></i></a>
+<a href="https://twitter.com/__dev__urandom"><i class="fab fa-twitter" style="font-size: 20px;"></i></a>
 <a href="https://github.com/higuoxing"><i class="fab fa-github" style="font-size: 20px;"></i></a>
 Besides, I am interested in compilers. You could also find some of my simple patches for LLVM [here](https://reviews.llvm.org/people/revisions/16934/) (need register).
 
