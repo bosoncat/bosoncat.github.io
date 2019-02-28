@@ -6,6 +6,8 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 preserveTaxonomyNames = true
 disqusShortname = "higuoxing"
 footnotereturnlinkcontents = "↩"
+PygmentsCodeFences = true
+PygmentsStyle = "emacs"
 
 [taxonomies]
   tag = "tags"

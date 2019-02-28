@@ -138,7 +138,7 @@ func dining(i int) {
 ```
 
 #### 初始化
-```
+```go
 func init() {
 	for i := 0; i < 5; i ++ {
 		chopstics[i] = make(semaphore, 1)
