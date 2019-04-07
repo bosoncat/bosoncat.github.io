@@ -55,50 +55,50 @@
 </span><span style="color:#080;font-style:italic"></span>)</code></pre></div>
 <h4 id="pv-操作">PV 操作</h4>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// P 操作，消耗一个资源
-</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> (sema <span style="color:#666">*</span>semaphore) <span style="color:#00a000">P</span>() {
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> (sema <span style="color:#666">*</span>semaphore) P() {
 	<span style="color:#a2f;font-weight:bold">for</span> {
 		<span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f">len</span>(<span style="color:#666">*</span>sema) &gt; <span style="color:#666">0</span> {
 			<span style="color:#666">&lt;-</span> <span style="color:#666">*</span>sema    <span style="color:#080;font-style:italic">// 消耗一个资源
 </span><span style="color:#080;font-style:italic"></span>			<span style="color:#a2f;font-weight:bold">break</span>
 		}
-		runtime.<span style="color:#00a000">Gosched</span>()   <span style="color:#080;font-style:italic">// 把控制权移出
+		runtime.Gosched()   <span style="color:#080;font-style:italic">// 把控制权移出
 </span><span style="color:#080;font-style:italic"></span>	}
 }
 
 <span style="color:#080;font-style:italic">// V 操作，释放一个资源
-</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> (sema <span style="color:#666">*</span>semaphore) <span style="color:#00a000">V</span>() {
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> (sema <span style="color:#666">*</span>semaphore) V() {
 	<span style="color:#a2f;font-weight:bold">for</span> {
 		<span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f">len</span>(<span style="color:#666">*</span>sema) &lt; <span style="color:#a2f">cap</span>(<span style="color:#666">*</span>sema) {
 			<span style="color:#666">*</span>sema <span style="color:#666">&lt;-</span> <span style="color:#666">1</span>  <span style="color:#080;font-style:italic">// 释放一个资源
 </span><span style="color:#080;font-style:italic"></span>			<span style="color:#a2f;font-weight:bold">break</span>
 		}
-		runtime.<span style="color:#00a000">Gosched</span>()   <span style="color:#080;font-style:italic">// 把控制权移出
+		runtime.Gosched()   <span style="color:#080;font-style:italic">// 把控制权移出
 </span><span style="color:#080;font-style:italic"></span>	}
 }</code></pre></div>
 <h4 id="生产者和消费者">生产者和消费者</h4>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">producer</span>() {
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> producer() {
 	<span style="color:#a2f;font-weight:bold">for</span> {
-		emptyCount.<span style="color:#00a000">P</span>()  <span style="color:#080;font-style:italic">// 消耗一个空闲区空的信号
-</span><span style="color:#080;font-style:italic"></span>		useQueue.<span style="color:#00a000">P</span>()    <span style="color:#080;font-style:italic">// 上锁
-</span><span style="color:#080;font-style:italic"></span>		items.<span style="color:#00a000">V</span>()       <span style="color:#080;font-style:italic">// 释放一个产品
-</span><span style="color:#080;font-style:italic"></span>		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;[Producer] Produce 1. Now we have %v items.\n&#34;</span>, <span style="color:#a2f">len</span>(items))
-		useQueue.<span style="color:#00a000">V</span>()    <span style="color:#080;font-style:italic">// 开锁
-</span><span style="color:#080;font-style:italic"></span>		fullCount.<span style="color:#00a000">V</span>()   <span style="color:#080;font-style:italic">// 释放一个空闲区满的信号
+		emptyCount.P()  <span style="color:#080;font-style:italic">// 消耗一个空闲区空的信号
+</span><span style="color:#080;font-style:italic"></span>		useQueue.P()    <span style="color:#080;font-style:italic">// 上锁
+</span><span style="color:#080;font-style:italic"></span>		items.V()       <span style="color:#080;font-style:italic">// 释放一个产品
+</span><span style="color:#080;font-style:italic"></span>		fmt.Printf(<span style="color:#b44">&#34;[Producer] Produce 1. Now we have %v items.\n&#34;</span>, <span style="color:#a2f">len</span>(items))
+		useQueue.V()    <span style="color:#080;font-style:italic">// 开锁
+</span><span style="color:#080;font-style:italic"></span>		fullCount.V()   <span style="color:#080;font-style:italic">// 释放一个空闲区满的信号
 </span><span style="color:#080;font-style:italic"></span>	}
 }
 
-<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">consumer</span>() {
+<span style="color:#a2f;font-weight:bold">func</span> consumer() {
 	<span style="color:#a2f;font-weight:bold">for</span> {
-		fullCount.<span style="color:#00a000">P</span>()  <span style="color:#080;font-style:italic">// 消耗空闲区满的信号
-</span><span style="color:#080;font-style:italic"></span>		useQueue.<span style="color:#00a000">P</span>()   <span style="color:#080;font-style:italic">// 上锁
-</span><span style="color:#080;font-style:italic"></span>		items.<span style="color:#00a000">P</span>()      <span style="color:#080;font-style:italic">// 消耗一个产品
-</span><span style="color:#080;font-style:italic"></span>		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;[Consumer] Consume 1. Now we have %v items.\n&#34;</span>, <span style="color:#a2f">len</span>(items))
-		useQueue.<span style="color:#00a000">V</span>()   <span style="color:#080;font-style:italic">// 开锁
-</span><span style="color:#080;font-style:italic"></span>		emptyCount.<span style="color:#00a000">V</span>() <span style="color:#080;font-style:italic">// 释放一个空闲区空的信号
+		fullCount.P()  <span style="color:#080;font-style:italic">// 消耗空闲区满的信号
+</span><span style="color:#080;font-style:italic"></span>		useQueue.P()   <span style="color:#080;font-style:italic">// 上锁
+</span><span style="color:#080;font-style:italic"></span>		items.P()      <span style="color:#080;font-style:italic">// 消耗一个产品
+</span><span style="color:#080;font-style:italic"></span>		fmt.Printf(<span style="color:#b44">&#34;[Consumer] Consume 1. Now we have %v items.\n&#34;</span>, <span style="color:#a2f">len</span>(items))
+		useQueue.V()   <span style="color:#080;font-style:italic">// 开锁
+</span><span style="color:#080;font-style:italic"></span>		emptyCount.V() <span style="color:#080;font-style:italic">// 释放一个空闲区空的信号
 </span><span style="color:#080;font-style:italic"></span>	}
 }</code></pre></div>
 <h4 id="初始化">初始化</h4>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">init</span>() {
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> init() {
 	<span style="color:#080;font-style:italic">// 初始化空闲区空的信号
 </span><span style="color:#080;font-style:italic"></span>	<span style="color:#a2f;font-weight:bold">for</span> i <span style="color:#666">:=</span> <span style="color:#666">0</span>; i &lt; maxSize; i <span style="color:#666">++</span> {
 		emptyCount <span style="color:#666">&lt;-</span> <span style="color:#666">1</span>
@@ -107,11 +107,11 @@
 </span><span style="color:#080;font-style:italic"></span>	useQueue <span style="color:#666">&lt;-</span> <span style="color:#666">1</span>
 }
 
-<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">main</span>() {
+<span style="color:#a2f;font-weight:bold">func</span> main() {
 	<span style="color:#080;font-style:italic">// 然后 producer 和 consumer 分别跑在两个 goroutine 上
-</span><span style="color:#080;font-style:italic"></span>	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">producer</span>()
-	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">consumer</span>()
-	time.<span style="color:#00a000">Sleep</span>(time.<span style="color:#00a000">Duration</span>(<span style="color:#666">5</span>)<span style="color:#666">*</span>time.Millisecond)
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#a2f;font-weight:bold">go</span> producer()
+	<span style="color:#a2f;font-weight:bold">go</span> consumer()
+	time.Sleep(time.Duration(<span style="color:#666">5</span>)<span style="color:#666">*</span>time.Millisecond)
 	<span style="color:#a2f;font-weight:bold">return</span>
 }</code></pre></div>
 <h4 id="打印结果">打印结果</h4>
@@ -136,32 +136,32 @@
 </span><span style="color:#080;font-style:italic"></span>	mutex   = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)      <span style="color:#080;font-style:italic">// 互斥锁
 </span><span style="color:#080;font-style:italic"></span>)</code></pre></div>
 <h4 id="进餐">进餐</h4>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">dining</span>(i <span style="color:#0b0;font-weight:bold">int</span>) {
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> dining(i <span style="color:#0b0;font-weight:bold">int</span>) {
 	<span style="color:#a2f;font-weight:bold">for</span> {
-		mutex.<span style="color:#00a000">P</span>()                 <span style="color:#080;font-style:italic">// 上锁
-</span><span style="color:#080;font-style:italic"></span>		chopstics[i].<span style="color:#00a000">P</span>()          <span style="color:#080;font-style:italic">// 取筷子
-</span><span style="color:#080;font-style:italic"></span>		chopstics[(i<span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">%</span><span style="color:#666">5</span>].<span style="color:#00a000">P</span>()
-		mutex.<span style="color:#00a000">V</span>()                 <span style="color:#080;font-style:italic">// 开锁
-</span><span style="color:#080;font-style:italic"></span>		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;Philosopher %v is eating\n&#34;</span>, i<span style="color:#666">+</span><span style="color:#666">1</span>)
-		chopstics[i].<span style="color:#00a000">V</span>()          <span style="color:#080;font-style:italic">// 释放筷子
-</span><span style="color:#080;font-style:italic"></span>		chopstics[(i<span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">%</span><span style="color:#666">5</span>].<span style="color:#00a000">V</span>()
-		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;Philosopher %v is thinking\n&#34;</span>, i<span style="color:#666">+</span><span style="color:#666">1</span>) <span style="color:#080;font-style:italic">// 思考
+		mutex.P()                 <span style="color:#080;font-style:italic">// 上锁
+</span><span style="color:#080;font-style:italic"></span>		chopstics[i].P()          <span style="color:#080;font-style:italic">// 取筷子
+</span><span style="color:#080;font-style:italic"></span>		chopstics[(i<span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">%</span><span style="color:#666">5</span>].P()
+		mutex.V()                 <span style="color:#080;font-style:italic">// 开锁
+</span><span style="color:#080;font-style:italic"></span>		fmt.Printf(<span style="color:#b44">&#34;Philosopher %v is eating\n&#34;</span>, i<span style="color:#666">+</span><span style="color:#666">1</span>)
+		chopstics[i].V()          <span style="color:#080;font-style:italic">// 释放筷子
+</span><span style="color:#080;font-style:italic"></span>		chopstics[(i<span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">%</span><span style="color:#666">5</span>].V()
+		fmt.Printf(<span style="color:#b44">&#34;Philosopher %v is thinking\n&#34;</span>, i<span style="color:#666">+</span><span style="color:#666">1</span>) <span style="color:#080;font-style:italic">// 思考
 </span><span style="color:#080;font-style:italic"></span>	}
 }</code></pre></div>
 <h4 id="初始化-1">初始化</h4>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">init</span>() {
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> init() {
 	<span style="color:#a2f;font-weight:bold">for</span> i <span style="color:#666">:=</span> <span style="color:#666">0</span>; i &lt; <span style="color:#666">5</span>; i <span style="color:#666">++</span> {
 		chopstics[i] = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)
-		chopstics[i].<span style="color:#00a000">V</span>()          <span style="color:#080;font-style:italic">// 释放筷子
+		chopstics[i].V()          <span style="color:#080;font-style:italic">// 释放筷子
 </span><span style="color:#080;font-style:italic"></span>	}
-	mutex.<span style="color:#00a000">V</span>()                         <span style="color:#080;font-style:italic">// 释放互斥锁
+	mutex.V()                         <span style="color:#080;font-style:italic">// 释放互斥锁
 </span><span style="color:#080;font-style:italic"></span>}
 
-<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">main</span>() {
+<span style="color:#a2f;font-weight:bold">func</span> main() {
 	<span style="color:#a2f;font-weight:bold">for</span> i <span style="color:#666">:=</span> <span style="color:#666">0</span>; i &lt; <span style="color:#666">5</span>; i <span style="color:#666">++</span> {
-		<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">dining</span>(i)
+		<span style="color:#a2f;font-weight:bold">go</span> dining(i)
 	}
-	time.<span style="color:#00a000">Sleep</span>(time.<span style="color:#00a000">Duration</span>(<span style="color:#666">5</span>) <span style="color:#666">*</span> time.Millisecond)
+	time.Sleep(time.Duration(<span style="color:#666">5</span>) <span style="color:#666">*</span> time.Millisecond)
 	<span style="color:#a2f;font-weight:bold">return</span>
 }</code></pre></div>
 <h4 id="打印结果-1">打印结果</h4>
@@ -187,41 +187,41 @@ Philosopher <span style="color:#666">5</span> is thinking
 </span><span style="color:#080;font-style:italic"></span>	smoking_done = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)   <span style="color:#080;font-style:italic">// 吸完烟的信号量
 </span><span style="color:#080;font-style:italic"></span>)</code></pre></div>
 <h4 id="供应者和吸烟者进程">供应者和吸烟者进程</h4>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">provider</span>() {
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> provider() {
 	<span style="color:#a2f;font-weight:bold">for</span> {
-		random <span style="color:#666">:=</span> rand.<span style="color:#00a000">Intn</span>(<span style="color:#666">3</span>)
+		random <span style="color:#666">:=</span> rand.Intn(<span style="color:#666">3</span>)
 		<span style="color:#a2f;font-weight:bold">switch</span> (random) {
 		<span style="color:#a2f;font-weight:bold">case</span> <span style="color:#666">0</span>:
-			smoker_match.<span style="color:#00a000">V</span>()    <span style="color:#080;font-style:italic">// 唤醒拥有火柴的吸烟者进程
+			smoker_match.V()    <span style="color:#080;font-style:italic">// 唤醒拥有火柴的吸烟者进程
 </span><span style="color:#080;font-style:italic"></span>		<span style="color:#a2f;font-weight:bold">case</span> <span style="color:#666">1</span>:
-			smoker_paper.<span style="color:#00a000">V</span>()    <span style="color:#080;font-style:italic">// 唤醒拥有卷烟纸的吸烟者进程
+			smoker_paper.V()    <span style="color:#080;font-style:italic">// 唤醒拥有卷烟纸的吸烟者进程
 </span><span style="color:#080;font-style:italic"></span>		<span style="color:#a2f;font-weight:bold">case</span> <span style="color:#666">2</span>:
-			smoker_tobacco.<span style="color:#00a000">V</span>()  <span style="color:#080;font-style:italic">// 唤醒拥有烟草的吸烟者进程
+			smoker_tobacco.V()  <span style="color:#080;font-style:italic">// 唤醒拥有烟草的吸烟者进程
 </span><span style="color:#080;font-style:italic"></span>		}
-		smoking_done.<span style="color:#00a000">P</span>()            <span style="color:#080;font-style:italic">// 等待吸烟者吸完继续发放材料					
+		smoking_done.P()            <span style="color:#080;font-style:italic">// 等待吸烟者吸完继续发放材料					
 </span><span style="color:#080;font-style:italic"></span>	}
 }
 
 <span style="color:#080;font-style:italic">// 拥有火柴的吸烟者进程，其余类似不予赘述
-</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">smoker_0</span>() {
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> smoker_0() {
 	<span style="color:#a2f;font-weight:bold">for</span> {
-		smoker_match.<span style="color:#00a000">P</span>()
-		fmt.<span style="color:#00a000">Println</span>(<span style="color:#b44">&#34;Smoker who has match is smoking&#34;</span>)
-		smoking_done.<span style="color:#00a000">V</span>()
+		smoker_match.P()
+		fmt.Println(<span style="color:#b44">&#34;Smoker who has match is smoking&#34;</span>)
+		smoking_done.V()
 	}
 }</code></pre></div>
 <h4 id="初始化变量">初始化变量</h4>
-<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">init</span>() {
-	smoking_done.<span style="color:#00a000">V</span>()
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> init() {
+	smoking_done.V()
 
 }
 
-<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">main</span>() {
-	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">provider</span>()
-	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">smoker_0</span>()
-	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">smoker_1</span>()
-	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">smoker_2</span>()
-	time.<span style="color:#00a000">Sleep</span>(time.<span style="color:#00a000">Duration</span>(<span style="color:#666">5</span>) <span style="color:#666">*</span> time.Millisecond)
+<span style="color:#a2f;font-weight:bold">func</span> main() {
+	<span style="color:#a2f;font-weight:bold">go</span> provider()
+	<span style="color:#a2f;font-weight:bold">go</span> smoker_0()
+	<span style="color:#a2f;font-weight:bold">go</span> smoker_1()
+	<span style="color:#a2f;font-weight:bold">go</span> smoker_2()
+	time.Sleep(time.Duration(<span style="color:#666">5</span>) <span style="color:#666">*</span> time.Millisecond)
 	<span style="color:#a2f;font-weight:bold">return</span>
 }</code></pre></div>
 <h4 id="打印结果-2">打印结果</h4>

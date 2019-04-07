@@ -59,7 +59,8 @@ axi-huffman-encoding-core ├── huffman_encoding.tcl ├── src (编译 I
       <pubDate>Tue, 10 Jul 2018 15:16:46 +0000</pubDate>
       
       <guid>/archives/manage-vivado-projects/</guid>
-      <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西&lt;/p&gt;</description>
+      <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西
+&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -79,7 +80,8 @@ Solution 一个解决方法是绑定一个打开 Terminal 的快捷键以及从 
       <pubDate>Tue, 24 Apr 2018 15:45:21 +0000</pubDate>
       
       <guid>/archives/node-ngspice/</guid>
-      <description>&lt;p&gt;这是一个最近花了整整一天写的很草率的项目&amp;hellip;不过肯定会完善的，至于接下来使用什么前端框架，打算敲定&lt;code&gt;vue.js&lt;/code&gt;了&amp;hellip;&lt;/p&gt;</description>
+      <description>&lt;p&gt;这是一个最近花了整整一天写的很草率的项目&amp;hellip;不过肯定会完善的，至于接下来使用什么前端框架，打算敲定&lt;code&gt;vue.js&lt;/code&gt;了&amp;hellip;
+&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -88,7 +90,8 @@ Solution 一个解决方法是绑定一个打开 Terminal 的快捷键以及从 
       <pubDate>Fri, 09 Mar 2018 15:16:46 +0000</pubDate>
       
       <guid>/archives/hregex/</guid>
-      <description>&lt;p&gt;上学期学了一些编译器前端的知识，接触到了&lt;code&gt;Flex&lt;/code&gt;，&lt;code&gt;Yacc&lt;/code&gt;这类的工具，同时也对正则表达式引擎有了很大的兴趣，于是总想着自己实现一个简单的正则表达式引擎，在这里是对这部分知识的一个总结，因为网上有很多资料总感觉缺头少尾，大多数人第一次读龙书[1]也是有些Hold不住，所以，这里拿一个&lt;code&gt;入门级&lt;/code&gt;的正则引擎作为例子，总结一下这部分知识&lt;/p&gt;</description>
+      <description>&lt;p&gt;上学期学了一些编译器前端的知识，接触到了&lt;code&gt;Flex&lt;/code&gt;，&lt;code&gt;Yacc&lt;/code&gt;这类的工具，同时也对正则表达式引擎有了很大的兴趣，于是总想着自己实现一个简单的正则表达式引擎，在这里是对这部分知识的一个总结，因为网上有很多资料总感觉缺头少尾，大多数人第一次读龙书[1]也是有些Hold不住，所以，这里拿一个&lt;code&gt;入门级&lt;/code&gt;的正则引擎作为例子，总结一下这部分知识
+&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -97,7 +100,9 @@ Solution 一个解决方法是绑定一个打开 Terminal 的快捷键以及从 
       <pubDate>Mon, 26 Feb 2018 14:56:15 +0000</pubDate>
       
       <guid>/archives/subset-construction/</guid>
-      <description>&lt;p&gt;子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了&lt;a href=&#34;https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3&#34;&gt;Gist&lt;/a&gt;，项目地址: &lt;a href=&#34;https://github.com/higuoxing/hregex&#34;&gt;hregex&lt;/a&gt;&lt;/p&gt;</description>
+      <description>&lt;p&gt;子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了&lt;a href=&#34;https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3&#34;&gt;Gist&lt;/a&gt;，项目地址: &lt;a href=&#34;https://github.com/higuoxing/hregex&#34;&gt;hregex&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -106,7 +111,8 @@ Solution 一个解决方法是绑定一个打开 Terminal 的快捷键以及从 
       <pubDate>Sat, 03 Feb 2018 00:08:38 +0000</pubDate>
       
       <guid>/archives/lazy-evaluation-in-haskell/</guid>
-      <description>&lt;p&gt;本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。&lt;/p&gt;</description>
+      <description>&lt;p&gt;本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。
+&lt;/p&gt;</description>
     </item>
     
     <item>

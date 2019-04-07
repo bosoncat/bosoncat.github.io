@@ -17,7 +17,9 @@
       <pubDate>Mon, 26 Feb 2018 14:56:15 +0000</pubDate>
       
       <guid>/archives/subset-construction/</guid>
-      <description>&lt;p&gt;子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了&lt;a href=&#34;https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3&#34;&gt;Gist&lt;/a&gt;，项目地址: &lt;a href=&#34;https://github.com/higuoxing/hregex&#34;&gt;hregex&lt;/a&gt;&lt;/p&gt;</description>
+      <description>&lt;p&gt;子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了&lt;a href=&#34;https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3&#34;&gt;Gist&lt;/a&gt;，项目地址: &lt;a href=&#34;https://github.com/higuoxing/hregex&#34;&gt;hregex&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>

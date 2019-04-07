@@ -35,6 +35,8 @@
 <main>
 <p>子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了<a href="https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3">Gist</a>，项目地址: <a href="https://github.com/higuoxing/hregex">hregex</a></p>
 
+<p></p>
+
 <h4 id="update-2018-03-05">Update: 2018.03.05</h4>
 
 <p>用字符来描述状态的改变其实效率是很低的，试想一下UTF-8的字符集有多大？如果只使用字符来描述状态的改变生成的DFA是很大的，所以可以利用字符集来描述状态的改变，当利用这样的边时，在匹配字符上就可以利用BST了，并且在建立DFA时也省事许多，拥有更高的效率，可以这样做</p>
