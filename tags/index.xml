@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on /dev/urandom</title>
+    <link>/tags/</link>
+    <description>Recent content in Tags on /dev/urandom</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 26 Feb 2018 14:56:15 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Algorithm</title>
+      <link>/tags/algorithm/</link>
+      <pubDate>Mon, 26 Feb 2018 14:56:15 +0000</pubDate>
+      
+      <guid>/tags/algorithm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>/tags/c&#43;&#43;/</link>
+      <pubDate>Sun, 16 Sep 2018 11:15:00 +0800</pubDate>
+      
+      <guid>/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Haskell</title>
+      <link>/tags/haskell/</link>
+      <pubDate>Fri, 09 Mar 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/tags/haskell/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>LLVM</title>
+      <link>/tags/llvm/</link>
+      <pubDate>Sat, 22 Sep 2018 19:49:49 +0800</pubDate>
+      
+      <guid>/tags/llvm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Side Topic</title>
+      <link>/tags/side-topic/</link>
+      <pubDate>Tue, 24 Apr 2018 15:45:21 +0000</pubDate>
+      
+      <guid>/tags/side-topic/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vim</title>
+      <link>/tags/vim/</link>
+      <pubDate>Sat, 23 Jun 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/tags/vim/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vivado</title>
+      <link>/tags/vivado/</link>
+      <pubDate>Tue, 24 Jul 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/tags/vivado/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

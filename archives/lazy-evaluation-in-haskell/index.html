@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Haskell中的惰性求值(Lazy evaluation) | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Haskell中的惰性求值(Lazy evaluation)</span></h1>
+
+<h2 class="date">2018/02/03</h2>
+</div>
+
+<main>
+<p>本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。</p>
+
+<h4 id="update-2018-03-30">Update: 2018.03.30</h4>
+
+<p>这里写的比较早，可能会有一些缺漏，更新的总结请参考 <a href="https://higuoxing.com/notes/hs-tutorial">hs-tutorial</a></p>
+
+<h3 id="introduction">Introduction</h3>
+
+<p>函数式编程打交道比较多的就是函数(Function)了，而函数的参数调用也是一个比较有意思的问题，惰性求值(Lazy evaluation)是Haskell的一个特性，本文主要写一写自己的看法，希望对大家有一些启发</p>
+
+<p>Haskell中，所有运算几乎都可以看作是给定表达式给定参数来求值。所以Haskell解释器对于某一个语句所做的便是表达式求值(Expression evaluation)了。有时候我们告诉解释器的参数是一些复合表达式，拿一个给给定参数增加一的函数来说:</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">increment</span> <span style="color:#a2f;font-weight:bold">::</span> <span style="color:#0b0;font-weight:bold">Int</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Int</span>
+<span style="color:#00a000">increment</span> <span style="color:#00a000">n</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">n</span> <span style="color:#666">+</span> <span style="color:#666">1</span></code></pre></div>
+<p>如果我们计算<code>increment (2*5)</code>，Haskell会如何计算？一般的我们有两种求法</p>
+
+<pre><code>increment (2*5)
+increment (10)
+then 10 + 1
+then get 11
+</code></pre>
+
+<p>以及另外一种求法</p>
+
+<pre><code>increment (2*5)
+then (2*5) + 1
+then 10 + 1
+then get 11
+</code></pre>
+
+<p>Haskell的一个很重的特性就是不管我们的求值顺序如何，我们最终得到的结果都是一致的。</p>
+
+<h3 id="evaluation-strategies">Evaluation Strategies</h3>
+
+<p>这里有一个概念叫做<code>reducible expression</code>或者也可以简写为<code>redex</code>，我个人的理解这个reduce并不代表一定要去把函数调用的表达式逻辑的精简而是某种意义上的化简，把它解释成计算机能够理解的语言。比如说，某一个乘积运算</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">mult</span> <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#0b0;font-weight:bold">Int</span>, <span style="color:#0b0;font-weight:bold">Int</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Int</span>
+<span style="color:#00a000">mult</span> (<span style="color:#00a000">x</span>, <span style="color:#00a000">y</span>) <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">x</span> <span style="color:#666">*</span> <span style="color:#00a000">y</span></code></pre></div>
+<p>类似的，我们在计算<code>mult (1+2) (2+3)</code>时，这个表达式就包含着3个<code>redex</code>，分别是<code>1+2</code>，<code>2+3</code>和<code>mult (x, y)</code>，我们根据之前的想法，可以知道这个表达式有三个求值步骤，分别是</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">mult</span> (<span style="color:#666">3</span>, <span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#00a000">mult</span> (<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>, <span style="color:#666">5</span>)
+(<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>) <span style="color:#666">*</span> (<span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)</code></pre></div>
+<p>当对这个表达式进行求值时，就有了两种想法，一种叫做<code>innermost evaluation</code></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">mult</span> (<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>, <span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#00a000">mult</span> (<span style="color:#666">3</span>, <span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#00a000">mult</span> (<span style="color:#666">3</span>, <span style="color:#666">5</span>)
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#666">3</span> <span style="color:#666">*</span> <span style="color:#666">5</span>
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#00a000">get</span> <span style="color:#666">15</span></code></pre></div>
+<p>另外一种就叫做<code>outermost evaluation</code></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">mult</span> (<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>, <span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#a2f;font-weight:bold">then</span> (<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>) <span style="color:#666">*</span> (<span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#666">3</span> <span style="color:#666">*</span> (<span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#666">3</span> <span style="color:#666">*</span> <span style="color:#666">5</span>
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#00a000">get</span> <span style="color:#666">15</span></code></pre></div>
+<p>乍一看可能看不出区别，但是仔细想想这两种求值策略(Evaluation strategy)的不同。第一种的<code>innermost evaluation</code>中，在函数调用的时候，所有的参数的值都是必须确定的，因为在计算的时候，最后一个调用的过程是<code>mult</code>，我们必须保证在函数调用时，数对(number pair)必须是两个整形(Int)组成的数对(number pair)，我们称这种情况下，参数的调用是<code>arguments passed by value</code>。第二种过程中，我们在调用<code>mult</code>函数时，是可以暂时不必考虑我们的参数的值的，我们在调用<code>mult</code>函数时，是不必检查我们的类型的，这种情况下，类型检查发生在函数调用后，我们称这种情况下，参数的调用是<code>arguments passed by name</code>。但是在Haskell中也有很多内置的函数即使在使用<code>outermost</code>时，也一定要类型检查，比如说<code>+</code>，<code>-</code>，<code>*</code>，<code>\</code>，称为<code>strict</code>模式。</p>
+
+<h3 id="lambda-expressions">Lambda Expressions</h3>
+
+<p>函数编程语言中，有一个比较有趣的概念是<code>curried function</code>，这一想法来自于<code>lambda calculus</code>，这里贴一个Wiki的链接<a href="https://en.wikipedia.org/wiki/Currying">curring</a>，<a href="https://en.wikipedia.org/wiki/Lambda_calculus">lambda calculus</a>。对于<code>lambda calculus</code>应该足够另外开一篇文章了，这里仅仅对<code>lambda expression</code>进行讨论。</p>
+
+<p>举个栗子，定义函数 $$f(x,y) = x * x + y * y$$</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">f</span> <span style="color:#a2f;font-weight:bold">::</span> <span style="color:#0b0;font-weight:bold">Num</span> <span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span>
+<span style="color:#00a000">f</span> <span style="color:#00a000">x</span> <span style="color:#00a000">y</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">x</span><span style="color:#666">*</span><span style="color:#00a000">x</span> <span style="color:#666">+</span> <span style="color:#00a000">y</span><span style="color:#666">*</span><span style="color:#00a000">y</span></code></pre></div>
+<p>但是仔细想想，一个函数好像并不一定要有一个名字，所以我们可以构建一个没有名字的映射 $$(x,y) \mapsto x*x + y*y$$ 这样的计算也是可以被接受的 $$((x,y)\mapsto x*x + y*y)(1,2)=1*1+2*2=5$$</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">f</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">\x</span> <span style="color:#00a000">y</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">x</span><span style="color:#666">*</span><span style="color:#00a000">x</span> <span style="color:#666">+</span> <span style="color:#00a000">y</span><span style="color:#666">*</span><span style="color:#00a000">y</span></code></pre></div>
+<p>甚至再大胆一些，多参数函数与一个参数的函数好像也不需要区分了，这便是<code>curried function</code>了。我们可以让多个参数的函数变成这样 $x \mapsto (y \mapsto x*x + y*y)$ 这个函数只有一个参数x，并把x映射成接受一个参数y的高阶函数(high order function)。这样的转换也叫做柯里化(curring)。</p>
+
+<p>先前的<code>mult</code>函数也可以这样定义了</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">mult</span> <span style="color:#a2f;font-weight:bold">::</span> <span style="color:#0b0;font-weight:bold">Int</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Int</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Int</span>
+<span style="color:#00a000">mult</span> <span style="color:#00a000">x</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">\y</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">x</span><span style="color:#666">*</span><span style="color:#00a000">y</span></code></pre></div>
+<p>现在再来看<code>mult (1+2) (2+3)</code>的行为</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">mult</span> (<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>) (<span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+<span style="color:#00a000">mult</span> <span style="color:#666">3</span> (<span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+(<span style="color:#00a000">\y</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#666">3</span><span style="color:#666">*</span><span style="color:#00a000">y</span>) (<span style="color:#666">2</span><span style="color:#666">+</span><span style="color:#666">3</span>)
+(<span style="color:#00a000">\y</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#666">3</span><span style="color:#666">*</span><span style="color:#00a000">y</span>) (<span style="color:#666">5</span>)
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#00a000">get</span> <span style="color:#666">15</span></code></pre></div>
+<p>这里Haskell的惰性运算(Lazy evaluation)就体现了出来，它只在需要的时候去检查，运算参数。这也就是为什么在Haskell中存在无限长的列表(List)的原因之一。</p>
+
+<h3 id="strict-application">Strict application</h3>
+
+<p>Haskell中默认的是惰性运算(Lazy evaluation)，但是也提供了一种方式($!)，强迫函数在调用前检查它的参数，拿<code>foldl</code>来说。一种<code>foldl</code>可以被定义为</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">foldl</span> <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">b</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> [<span style="color:#00a000">b</span>] <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span>
+<span style="color:#00a000">foldl</span> <span style="color:#00a000">step</span> <span style="color:#00a000">zero</span> (<span style="color:#00a000">x</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#00a000">xs</span>) <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">foldl</span> <span style="color:#00a000">step</span> (<span style="color:#00a000">step</span> <span style="color:#00a000">zero</span> <span style="color:#00a000">x</span>) <span style="color:#00a000">xs</span>
+<span style="color:#00a000">foldl</span> <span style="color:#a2f;font-weight:bold">_</span> <span style="color:#00a000">zero</span> <span style="color:#0b0;font-weight:bold">[]</span>        <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">zero</span></code></pre></div>
+<p>我们利用它来计算一个列表的和</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">foldl</span> (<span style="color:#666">+</span>) <span style="color:#666">0</span> [<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>]
+<span style="color:#00a000">foldl</span> (<span style="color:#666">+</span>) <span style="color:#666">0</span> (<span style="color:#666">1</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">2</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl</span> (<span style="color:#666">+</span>) (<span style="color:#666">0</span><span style="color:#666">+</span><span style="color:#666">1</span>) (<span style="color:#666">2</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl</span> (<span style="color:#666">+</span>) ((<span style="color:#666">0</span><span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">+</span><span style="color:#666">2</span>) (<span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl</span> (<span style="color:#666">+</span>) (((<span style="color:#666">0</span><span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">+</span><span style="color:#666">2</span>)<span style="color:#666">+</span><span style="color:#666">3</span>) <span style="color:#0b0;font-weight:bold">[]</span>
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#00a000">get</span> <span style="color:#666">6</span></code></pre></div>
+<p>利用<code>strict application</code>我们可以定义新的<code>foldl</code>函数</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">foldl&#39;</span> <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">b</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> [<span style="color:#00a000">b</span>] <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">a</span>
+<span style="color:#00a000">foldl&#39;</span> <span style="color:#00a000">step</span> <span style="color:#00a000">zero</span> (<span style="color:#00a000">x</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#00a000">xs</span>) <span style="color:#a2f;font-weight:bold">=</span> ((<span style="color:#00a000">foldl</span> <span style="color:#00a000">step</span>) <span style="color:#666">$!</span> (<span style="color:#00a000">step</span> <span style="color:#00a000">zero</span> <span style="color:#00a000">x</span>)) <span style="color:#00a000">xs</span>
+<span style="color:#00a000">foldl&#39;</span> <span style="color:#a2f;font-weight:bold">_</span> <span style="color:#00a000">zero</span>           <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">zero</span></code></pre></div>
+<p>同样利用它来计算列表<code>[1..3]</code>的和</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) <span style="color:#666">0</span> [<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>]
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) <span style="color:#666">0</span> (<span style="color:#666">1</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">2</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) (<span style="color:#666">0</span><span style="color:#666">+</span><span style="color:#666">1</span>) (<span style="color:#666">2</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) <span style="color:#666">1</span> (<span style="color:#666">2</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) (<span style="color:#666">1</span><span style="color:#666">+</span><span style="color:#666">2</span>) (<span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) <span style="color:#666">3</span> (<span style="color:#666">3</span><span style="color:#0b0;font-weight:bold">:[]</span>)
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) (<span style="color:#666">3</span><span style="color:#666">+</span><span style="color:#666">3</span>) <span style="color:#0b0;font-weight:bold">[]</span>
+<span style="color:#00a000">foldl&#39;</span> (<span style="color:#666">+</span>) <span style="color:#666">6</span> <span style="color:#0b0;font-weight:bold">[]</span>
+<span style="color:#a2f;font-weight:bold">then</span> <span style="color:#00a000">get</span> <span style="color:#666">6</span></code></pre></div>
+<p>所以，在恰当时候使用<code>strict application</code>对减少软件资源占用有很大的帮助，这里主要是对<code>Lazy evaluation</code>的自己的一些看法，结合一些简单的栗子，对代码性能的一点分析。Learn you a Haskell for great good!</p>
+
+<h3 id="reference">Reference</h3>
+
+<ul>
+<li>Programming in Haskell 2nd Edition (Graham Hutton)</li>
+<li>让我们来谈谈Lambda演算 王盛颐</li>
+</ul>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

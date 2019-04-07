@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>更好的管理 Vivado 项目 | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">更好的管理 Vivado 项目</span></h1>
+
+<h2 class="date">2018/07/10</h2>
+</div>
+
+<main>
+<p>最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西</p>
+
+<h3 id="introduction">Introduction</h3>
+
+<p>主要的想法源自于 Vivado 编译项目时太过缓慢，GUI 经常失去响应的样子，十分笨重。Vivado 是可以利用 tcl 脚本来管理编译行为的，这个与 <code>make</code> 或者 <code>Ninja</code> 这类的软件类似，也就是说，在做一些项目的时候，掌握 tcl 脚本的写法可以完全不使用 Vivado 的笨重 IDE 直接使用 <code>vivado -mode batch / vivado -mode tcl</code> 来进行操作，又因为在 Vivado 中调用自己顺手的 Editor 实在费劲，字体也很奇怪，但是为了生产力，一定情况下是可以抛弃 GUI 界面的。当然啦，这一系列操作在 linux 下更方便 :p</p>
+
+<h3 id="short-hand">Short Hand</h3>
+
+<p>大体来说，开发 FPGA 经历编写 RTL 代码，综合，布线，写入 2 进制 bit 文件，下板，也许之前还需要进行时序约束等步骤。而这一系列的工作，我认为编写一套顺手的 tcl 脚本来管理开发流程是十分有必要的，一方面可以让自己开发更加心中有数，另一方面减少了 GUI 消耗的内存和 CPU 资源。除此之外，网络上面很多开源的 RTL 代码是只有源代码的，以及像 chisel 编写的代码是只有 scala 源码的。怎么把这些工程整合到 Vivado 中呢？当然你可以一个一个文件的添加到 Vivado 工程中，然后点击综合，布线，生成 bit 文件，如果出错继续再点一遍上述的按钮。而我认为，编写一套合理的脚本帮我们自动化完成这些任务是很有必要的，这也是我转向 tcl 脚本管理项目的原因之一。</p>
+
+<p>除此之外，Vivado 默认的代码路径十分不友好，比如：<code>/project.srcs/constrs/new/constr.xdc</code> 或者 <code>/project.srcs/rtl/new/top.v</code> 等等。你可以看出来，文件树太深，命名古怪，编程老手可不会这样（虽然我不是 :p ）！</p>
+
+<h3 id="easy-tutorial">Easy Tutorial</h3>
+
+<p>一下内容基本可以在 ug975, ug893 找得到。Vivado 在启动的时候有几个启动模式，分别为 <code>tcl</code>, <code>batch</code> 和 <code>gui</code>;</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ vivado -mode <span style="color:#666">[</span> tcl | batch -source &lt;your script&gt; | gui <span style="color:#666">]</span></code></pre></div>
+<h4 id="tcl">tcl</h4>
+
+<p>tcl 模式是进入了 vivado 提供的 tcl 命令行，我们的 tcl 脚本中的语句可以拆开来一条一条的输入到命令行中。这个是比较 interactive 的</p>
+
+<h4 id="batch">batch</h4>
+
+<p>batch 模式就是一次执行一个 tcl 脚本</p>
+
+<h4 id="gui">gui</h4>
+
+<p>gui 模式就是我们通常看到的图形界面，它的下面也有一个 tcl 命令行，但是 gui 实在太笨重了，我不会选择打开如此笨重的软件只为使用一个命令行</p>
+
+<p>维护一个项目最简单的脚本可以这样写</p>
+
+<h4 id="non-project-mode">Non-Project Mode</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-tcl" data-lang="tcl"><span style="color:#080;font-style:italic"># set properties {
+</span><span style="color:#080;font-style:italic"></span>    
+    <span style="color:#a2f;font-weight:bold">set</span> output_dir .<span style="color:#666">/</span>build
+    <span style="color:#a2f">file</span> mkdir <span style="color:#b8860b">$output_dir</span>
+    
+    <span style="color:#b8860b">set_part</span> xc7z020clg400-1
+<span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># read constraints and source files {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">read_verilog</span> <span style="color:#a2f;font-weight:bold">[</span> <span style="color:#a2f">glob</span> .<span style="color:#666">/</span>src<span style="color:#666">/</span>rtl<span style="color:#666">/*</span>.v <span style="color:#a2f;font-weight:bold">]</span> <span style="">#</span> read all the verilog files
+    <span style="color:#080;font-style:italic"># read_verilog ./src/rtl/top.v      # read single verilog file
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># read_verilog ./src/rtl/top.vhdl   # read single VHDL file
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">read_xdc</span> .<span style="color:#666">/</span>src<span style="color:#666">/</span>contrs<span style="color:#666">/</span>project.xdc
+<span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># run synthesis {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">synth_design</span> <span style="color:#666">-</span>top top    <span style="">#</span> Tell vivado your top module name
+
+    <span style="color:#080;font-style:italic"># optional commands: checkpoints and reports
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># write_checkpoint -force $output_dir/post_synth
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_utilization -file $output_dir/post_synth_util.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_timing -sort_by group -max_paths 5 -path_type summary \
+</span><span style="color:#080;font-style:italic">      -file $output_dir/post_synth/post_synth_timing_report
+</span><span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># run placement and optimization {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">opt_design</span>
+    <span style="color:#b8860b">power_opt_design</span>
+    <span style="color:#b8860b">place_design</span>
+    <span style="color:#b8860b">phys_opt_design</span>
+
+    <span style="color:#080;font-style:italic"># optional commands: checkpoints and reports
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># write_checkpoint -force $output_dir/post_place
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_clock_utilization -file $output_dir/clock_util.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_utilization -file $output_dir/post_place_util.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_timing -sort_by group -max_paths 5 -path_type summary \
+</span><span style="color:#080;font-style:italic">    #   -file $output_dir/post_place_timing.report
+</span><span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># run routing {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">route_design</span>
+
+    <span style="color:#080;font-style:italic"># optional commands: checkpoints and reports
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># write_checkpoint -force $output_dir/post_route
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_timing_summary -file $output_dir/post_route_timing_summary.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_utilization -file $output_dir/post_route_util.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_power -file $output_dir/post_route_power.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_methodology -file $output_dir/post_impl_checks.report
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># report_drc -file $output_dir/post_imp_drc.report
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># optional commands: write optimized, primitive based netlist
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#080;font-style:italic"># write_verilog -force $output_dir/netlist.v
+</span><span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># write bit stream {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">write_bitstream</span> <span style="color:#b8860b">$output_dir</span><span style="color:#666">/</span>top.bit
+<span style="color:#080;font-style:italic">#</span><span style=""> }</span></code></pre></div>
+<h4 id="project-mode">Project Mode</h4>
+
+<p>Project Mode 与上面的脚本类似，只不过更加偏向 Vivado 自动生成一系列默认文件的模式</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-tcl" data-lang="tcl"><span style="color:#080;font-style:italic"># create project and set device parts {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">create_project</span> myproject .<span style="color:#666">/</span>myproject <span style="color:#666">-</span>part xc7z020clg400-1
+<span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># add source files {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">add_files</span> <span style="color:#a2f;font-weight:bold">[</span> <span style="color:#a2f">glob</span> .<span style="color:#666">/</span>src<span style="color:#666">/</span>rtl<span style="color:#666">/*</span>.v <span style="color:#a2f;font-weight:bold">]</span>
+    <span style="color:#b8860b">import_files</span> <span style="color:#666">-</span>force <span style="color:#666">-</span>norecurse
+    <span style="color:#b8860b">import_files</span> <span style="color:#666">-</span>fileset constrs_1 .<span style="color:#666">/</span>src<span style="color:#666">/</span>contrs<span style="color:#666">/</span>constrs.xdc
+<span style="color:#080;font-style:italic"># }
+</span><span style="color:#080;font-style:italic">
+</span><span style="color:#080;font-style:italic"># run synthesis, implementation, write bitstream {
+</span><span style="color:#080;font-style:italic"></span>    <span style="color:#b8860b">launch_runs</span> synth_1 <span style="color:#666">-</span>to_step write_bitstream
+    <span style="color:#b8860b">wait_on_run</span> impl_1
+<span style="color:#080;font-style:italic">#</span><span style=""> }</span></code></pre></div>
+<h3 id="idea">Idea</h3>
+
+<p>一点小小的想法，参照 cmake 的设计理念，我们是否可以开发一款叫做 hdlmake 的软件进行软件管理，可以在 Vivado 或者 alera 或者 yosys 这类综合软件之间切换，也可以针对不同的平台进行 tcl 脚本的自动生成，因为很多软件的行为在 Windows 和 Linux 下是十分不同的，比如路径问题 (<code>/User/somebody</code> 和 <code>D:\\User\\Somebody</code>)。带着这个想法，结果发现其实有人做过了，而且项目名字就叫做 <a href="https://www.ohwr.org/projects/hdl-make">hdlmake</a>，暂时还没有时间去品尝螃蟹，有人愿意尝试吗 :p</p>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

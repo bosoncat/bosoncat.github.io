@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>子集构造法(Subset construction) | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">子集构造法(Subset construction)</span></h1>
+
+<h2 class="date">2018/02/26</h2>
+</div>
+
+<main>
+<p>子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了<a href="https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3">Gist</a>，项目地址: <a href="https://github.com/higuoxing/hregex">hregex</a></p>
+
+<h4 id="update-2018-03-05">Update: 2018.03.05</h4>
+
+<p>用字符来描述状态的改变其实效率是很低的，试想一下UTF-8的字符集有多大？如果只使用字符来描述状态的改变生成的DFA是很大的，所以可以利用字符集来描述状态的改变，当利用这样的边时，在匹配字符上就可以利用BST了，并且在建立DFA时也省事许多，拥有更高的效率，可以这样做</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#a2f;font-weight:bold">data</span> <span style="color:#0b0;font-weight:bold">Transition</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Edge</span> <span style="color:#00a000">state</span> (<span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#0b0;font-weight:bold">Char</span>) <span style="color:#00a000">state</span>
+                      <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Epsilon</span> (<span style="color:#0b0;font-weight:bold">Int</span>, <span style="color:#0b0;font-weight:bold">Int</span>) <span style="color:#00a000">state</span></code></pre></div>
+<p>可以参考这个答案 <a href="https://stackoverflow.com/questions/20767047/how-to-implement-regular-expression-nfa-with-character-ranges">Stack Overflow</a></p>
+
+<h3 id="introduction">Introduction</h3>
+
+<p>本文主要是对编译原理[1]中比较经典的「不确定有穷自动机」<code>Nondeterministic Finite Automata</code>转为「确定的有穷自动机」<code>Deterministic Finite Automata</code>算法的一个实践，寒假时看了些有关函数式编程的东西，所以这里就拿Haskell来当做工具了，这里就先不对效率有什么要求，主要阐述自动机的构造方法和转换。</p>
+
+<h3 id="automata-structure">Automata Structure</h3>
+
+<p>自动机在很多情况下是被定义成一个5元-元组<code>tuple</code></p>
+
+<p>$$FA = &lt;Q, \Sigma, \delta, q_0, F&gt;$$</p>
+
+<pre><code>其中
+Q     : 自动机中所有的状态集合
+Sigma : 自动机中所有的标志(symbols)集合
+delta : 自动机中所有的状态转换集合 (map (Q, Sigma)-&gt; Q)
+q_0   : 自动机的初始状态
+F     : 自动机所有终结状态的集合
+</code></pre>
+
+<p>所以根据定义，我们可以得到一个有限自动机(FA)的构造函数</p>
+
+<p><em>Automata</em></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#a2f;font-weight:bold">data</span> <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">where</span>
+  <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span>, <span style="color:#0b0;font-weight:bold">Show</span> <span style="color:#00a000">state</span>)
+           <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>               <span style="color:#080;font-style:italic">-- Finite set of states</span>
+           <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#0b0;font-weight:bold">Char</span>                <span style="color:#080;font-style:italic">-- Set of input char</span>
+           <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> (<span style="color:#0b0;font-weight:bold">Transition</span> <span style="color:#00a000">state</span>)  <span style="color:#080;font-style:italic">-- Transition functions (s1 -(char|epsilon)-&gt; s2)</span>
+           <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">state</span>                   <span style="color:#080;font-style:italic">-- Initial state</span>
+           <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>               <span style="color:#080;font-style:italic">-- Set of acceptable states</span>
+           <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">state</span>
+
+<span style="color:#a2f;font-weight:bold">data</span> <span style="color:#0b0;font-weight:bold">Transition</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Edge</span> <span style="color:#00a000">state</span> <span style="color:#0b0;font-weight:bold">Char</span> <span style="color:#00a000">state</span>
+                      <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Epsilon</span> <span style="color:#00a000">state</span> <span style="color:#00a000">state</span>
+  <span style="color:#a2f;font-weight:bold">deriving</span> (<span style="color:#0b0;font-weight:bold">Ord</span>, <span style="color:#0b0;font-weight:bold">Eq</span>, <span style="color:#0b0;font-weight:bold">Show</span>)</code></pre></div>
+<h3 id="algorithm">Algorithm</h3>
+
+<p>子集构造法的伪码如下，十分短小</p>
+
+<p><em>Pseudo code for subset construction</em></p>
+
+<pre><code>Initially, epsilon-closure(s0) only state in Dstate, unmarked
+while unmarked state T in Dstate do
+  mark T;
+  for each input symbol a do
+    U := epsilon-closure(move(T, a))
+    if U is not in Dstates then
+      add U as an unmarked state to Dstates
+      Dtran[T, a] := U
+  end
+end
+</code></pre>
+
+<p>其中, <code>epsilon-closure(s)</code> 是所有NFA的状态中可以并且只通过epsilon边转换能够到达的NFA状态集合，<code>epsilon-closure(T)</code> 是能够从状态集合T中任意一个状态开始只通过epsilon边转化到达的NFA状态集合，<code>move(T, a)</code> 是能够从状态集合T中通过标记为a的边转换到达的NFA状态集合</p>
+
+<p>以上三个闭包的求法大致相同，<code>epsilon-closure(s)</code>可以看做是<code>epsilon-closure(T)</code>的一个特殊情况，其中T只含有s一个元素，而求epsilon闭包只需要一个简单的深度优先遍历(DFS)算法即可</p>
+
+<p><em>epsilonClosure_T</em></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#080;font-style:italic">-- set of states that transfered from state s via epsilon edge</span>
+<span style="color:#00a000">epsilonClosure_T</span> <span style="color:#a2f;font-weight:bold">::</span> <span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>
+<span style="color:#00a000">epsilonClosure_T</span> (<span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">ss_</span> <span style="color:#00a000">cs</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">s_</span> <span style="color:#00a000">terms</span>) <span style="color:#00a000">ss</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">epsilonClosure_T&#39;</span>
+                                                    (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">filter</span> <span style="color:#00a000">isEpsilon</span> <span style="color:#00a000">ts</span>)
+                                                    (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">toList</span> <span style="color:#00a000">ss</span>) <span style="color:#00a000">ss</span></code></pre></div>
+<p><em>epsilonClosure_T&rsquo;</em> 辅助函数</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">epsilonClosure_T&#39;</span> <span style="color:#a2f;font-weight:bold">::</span> <span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> (<span style="color:#0b0;font-weight:bold">Transition</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> [<span style="color:#00a000">state</span>] <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>
+<span style="color:#00a000">epsilonClosure_T&#39;</span> <span style="color:#00a000">ts</span> <span style="color:#0b0;font-weight:bold">[]</span> <span style="color:#00a000">ss</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">ss</span>
+<span style="color:#00a000">epsilonClosure_T&#39;</span> <span style="color:#00a000">ts</span> (<span style="color:#00a000">st</span><span style="color:#0b0;font-weight:bold">:</span><span style="color:#00a000">stack</span>) <span style="color:#00a000">ss</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">epsilonClosure_T&#39;</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">stack&#39;</span> <span style="color:#00a000">ss&#39;</span>
+  <span style="color:#a2f;font-weight:bold">where</span>
+    <span style="color:#00a000">epm</span>    <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">epsilonMoveFrom</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">st</span>
+    <span style="color:#00a000">ss&#39;</span>    <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">union</span> <span style="color:#00a000">ss</span> <span style="color:#00a000">epm</span>
+    <span style="color:#00a000">stack&#39;</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">stack</span> <span style="color:#666">++</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">toList</span> (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">difference</span> <span style="color:#00a000">ss&#39;</span> <span style="color:#00a000">ss</span>)
+
+<span style="color:#080;font-style:italic">-- one epsilon move from state s</span>
+<span style="color:#00a000">epsilonMoveFrom</span> <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#0b0;font-weight:bold">Eq</span> <span style="color:#00a000">state</span>, <span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> (<span style="color:#0b0;font-weight:bold">Transition</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>
+<span style="color:#00a000">epsilonMoveFrom</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">s</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">foldr</span> <span style="color:#00a000">f</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">empty</span> <span style="color:#00a000">ts</span>
+  <span style="color:#a2f;font-weight:bold">where</span>
+    <span style="color:#00a000">f</span> <span style="color:#00a000">t</span> <span style="color:#00a000">set</span> <span style="color:#666">|</span> <span style="color:#00a000">t</span> `<span style="color:#00a000">isEpsilonMoveFrom</span>` <span style="color:#00a000">s</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#a2f;font-weight:bold">let</span> (<span style="color:#00a000">s0</span>, <span style="color:#00a000">s1</span>) <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">getStates</span> <span style="color:#00a000">t</span> <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">insert</span> <span style="color:#00a000">s1</span> <span style="color:#00a000">set</span>
+            <span style="color:#666">|</span> <span style="color:#00a000">otherwise</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">set</span></code></pre></div>
+<p>以上，之所以使用了另外一个<code>epsilonClosure_T'</code>这个辅助函数是因为我们需要一个栈来保存一些仍可能发出epsilon边的状态，这样通过下一次调用就可以得到通过这些状态经epsilon边到达的另外一部分状态，<code>move(T, a)</code>的算法与求epsilon闭包的算法相近，只不过不需要深度优先遍历而已</p>
+
+<p><em>move_T</em></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#080;font-style:italic">-- move(T, c, s) :: Ord state =&gt; Automata state -&gt; Set state -&gt; Char -&gt; Set state</span>
+<span style="color:#080;font-style:italic">-- set of states that transifered from state s via Char c</span>
+<span style="color:#00a000">move_T</span> <span style="color:#a2f;font-weight:bold">::</span> <span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Char</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>
+<span style="color:#00a000">move_T</span> (<span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">ss_</span> <span style="color:#00a000">cs</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">s_</span> <span style="color:#00a000">terms</span>) <span style="color:#00a000">ss</span> <span style="color:#00a000">c</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">foldr</span> <span style="color:#00a000">f</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">empty</span> <span style="color:#00a000">ss</span>
+  <span style="color:#a2f;font-weight:bold">where</span>
+    <span style="color:#00a000">f</span> <span style="color:#00a000">x</span> <span style="color:#00a000">set</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">union</span> <span style="color:#00a000">set</span> (<span style="color:#00a000">transitionFrom</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">x</span> <span style="color:#00a000">c</span>)
+
+<span style="color:#080;font-style:italic">-- one transition from state s via c</span>
+<span style="color:#00a000">transitionFrom</span> <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#0b0;font-weight:bold">Eq</span> <span style="color:#00a000">state</span>, <span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> (<span style="color:#0b0;font-weight:bold">Transition</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#00a000">state</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Char</span> <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>
+<span style="color:#00a000">transitionFrom</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">s</span> <span style="color:#00a000">c</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">foldr</span> <span style="color:#00a000">f</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">empty</span> <span style="color:#00a000">ts</span>
+  <span style="color:#a2f;font-weight:bold">where</span>
+    <span style="color:#00a000">f</span> <span style="color:#00a000">t</span> <span style="color:#00a000">set</span> <span style="color:#666">|</span> <span style="color:#00a000">isTransitionMoveFrom</span> <span style="color:#00a000">t</span> <span style="color:#00a000">s</span> <span style="color:#00a000">c</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#a2f;font-weight:bold">let</span> (<span style="color:#00a000">s0</span>, <span style="color:#00a000">s1</span>) <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">getStates</span> <span style="color:#00a000">t</span> <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">insert</span> <span style="color:#00a000">s1</span> <span style="color:#00a000">set</span>
+            <span style="color:#666">|</span> <span style="color:#00a000">otherwise</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">set</span></code></pre></div>
+<p>剩下的便是将它们组合成子集构造法的函数，根据以往的经验，伪码中又出现了循环，所以利用递归解决掉它，首先根据我们的需求来确定它的函数签名，接受一个NFA返回一个DFA</p>
+
+<p><em>subsetConstruct</em></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#080;font-style:italic">-- transform NFA to DFA using subset construction</span>
+<span style="color:#00a000">subsetConstruct</span>
+  <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span>, <span style="color:#0b0;font-weight:bold">Eq</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">state</span>
+    <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> (<span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>)
+<span style="color:#00a000">subsetConstruct</span> <span style="color:#00a000">nfa</span><span style="color:#666">@</span>(<span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">ss</span> <span style="color:#00a000">cs</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">s_</span> <span style="color:#00a000">terms</span>)
+  <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">subsetConstruct&#39;</span> <span style="color:#00a000">nfa</span> <span style="color:#00a000">iniDFA</span> <span style="color:#00a000">iniUdss</span>
+  <span style="color:#a2f;font-weight:bold">where</span>
+    <span style="color:#00a000">iniDFA</span>  <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Automata</span> (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">empty</span>) <span style="color:#00a000">cs</span> (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">empty</span>) (<span style="color:#00a000">s_ini</span>) (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">empty</span>)
+    <span style="color:#00a000">s_ini</span>   <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">epsilonClosure_T</span> <span style="color:#00a000">nfa</span> (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">fromList</span> [<span style="color:#00a000">s_</span>])
+    <span style="color:#00a000">iniUdss</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">fromList</span> [<span style="color:#00a000">s_ini</span>]</code></pre></div>
+<p>之后，就只需要构造这个递归的<code>subsetConstruct'</code>的辅助函数了，根据上面我们求epsilon闭包的辅助函数，我们还是把<code>unmarked Dstates</code>放到一个叫做udss的栈来时时保存还没有标记的状态，也就是说，我们的辅助函数只要接受一个NFA，一个时时改变的DFA和一个保存着未标记状态的栈即可，当栈为空时返回DFA即可</p>
+
+<blockquote>
+<p>Tips: 这里有个小坑是在udss保存未标记的状态时，注意不要把空状态误加入，否则会出现一个空状态，影响后面程序</p>
+</blockquote>
+
+<p><em>subSetconstruct&rsquo;</em> 辅助函数</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#00a000">subsetConstruct&#39;</span>
+  <span style="color:#a2f;font-weight:bold">::</span> (<span style="color:#0b0;font-weight:bold">Ord</span> <span style="color:#00a000">state</span>, <span style="color:#0b0;font-weight:bold">Eq</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">=&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">state</span>
+    <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> (<span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Set</span> (<span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>) <span style="color:#a2f;font-weight:bold">-&gt;</span> <span style="color:#0b0;font-weight:bold">Automata</span> (<span style="color:#0b0;font-weight:bold">Set</span> <span style="color:#00a000">state</span>)
+<span style="color:#00a000">subsetConstruct&#39;</span> <span style="color:#00a000">nfa</span><span style="color:#666">@</span>(<span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">ss</span> <span style="color:#00a000">cs</span> <span style="color:#00a000">ts</span> <span style="color:#00a000">s_</span> <span style="color:#00a000">terms</span>) <span style="color:#00a000">dfa</span><span style="color:#666">@</span>(<span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">dss</span> <span style="color:#00a000">dcs</span> <span style="color:#00a000">dts</span> <span style="color:#00a000">ds_</span> <span style="color:#00a000">dterms</span>) <span style="color:#00a000">udss</span>
+  <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">null</span> <span style="color:#00a000">udss</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">dfa</span>
+  <span style="color:#666">|</span> <span style="color:#00a000">otherwise</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">subsetConstruct&#39;</span> <span style="color:#00a000">nfa</span> (<span style="color:#0b0;font-weight:bold">Automata</span> <span style="color:#00a000">dss&#39;</span> <span style="color:#00a000">dcs&#39;</span> <span style="color:#00a000">dts&#39;</span> <span style="color:#00a000">ds_</span> <span style="color:#00a000">dterms&#39;</span>) <span style="color:#00a000">udss&#39;</span>
+    <span style="color:#a2f;font-weight:bold">where</span>
+      (<span style="color:#00a000">tset</span>, <span style="color:#00a000">udss&#39;&#39;</span>) <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">popDstate</span> <span style="color:#00a000">udss</span>                         <span style="color:#080;font-style:italic">-- pop T from unmarked Dstates</span>
+      <span style="color:#00a000">dss&#39;</span>           <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">addDstate</span> <span style="color:#00a000">tset</span> <span style="color:#00a000">dss</span>                     <span style="color:#080;font-style:italic">-- mark dstate</span>
+      <span style="color:#00a000">dcs&#39;</span>           <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">dcs</span>                                    <span style="color:#080;font-style:italic">-- just copy dcs</span>
+      (<span style="color:#00a000">udss&#39;</span>, <span style="color:#00a000">dts&#39;</span>)  <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#00a000">addTrans</span> <span style="color:#00a000">nfa</span> (<span style="color:#0b0;font-weight:bold">Set</span><span style="color:#666">.</span><span style="color:#00a000">toList</span> <span style="color:#00a000">dcs</span>) <span style="color:#00a000">tset</span> <span style="color:#00a000">dss&#39;</span> <span style="color:#00a000">dts</span> <span style="color:#00a000">udss&#39;&#39;</span>
+      <span style="color:#00a000">dterms&#39;</span>        <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#a2f;font-weight:bold">if</span> <span style="color:#00a000">isTerm</span> <span style="color:#00a000">tset</span> <span style="color:#00a000">terms</span> <span style="color:#a2f;font-weight:bold">then</span>              <span style="color:#080;font-style:italic">-- add dterms</span>
+                         <span style="color:#00a000">addDstate</span> <span style="color:#00a000">tset</span> <span style="color:#00a000">dterms</span>
+                       <span style="color:#a2f;font-weight:bold">else</span> <span style="color:#00a000">dterms</span></code></pre></div>
+<p>然后根据我们的需要去把自动机声明为Show的实例(instance)即可加载到解释器验证了，这里拿一个栗子<code>(a|b)*aa</code>进行验证&hellip;</p>
+
+<p>上面正则表达式构成的NFA为:</p>
+
+<p><img src="./nfa.png" alt="NFA" /></p>
+
+<p>转换后的DFA为:</p>
+
+<p><img src="./dfa.png" alt="DFA" /></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">A <span style="color:#666">=</span> {<span style="color:#666">0</span>, <span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">4</span>, <span style="color:#666">7</span>}
+B <span style="color:#666">=</span> {<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>, <span style="color:#666">4</span>, <span style="color:#666">6</span>, <span style="color:#666">7</span>, <span style="color:#666">8</span>}
+C <span style="color:#666">=</span> {<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">4</span>, <span style="color:#666">5</span>, <span style="color:#666">6</span>, <span style="color:#666">7</span>}
+D <span style="color:#666">=</span> {<span style="color:#666">1</span>, <span style="color:#666">2</span>, <span style="color:#666">3</span>, <span style="color:#666">4</span>, <span style="color:#666">6</span>, <span style="color:#666">7</span>, <span style="color:#666">8</span>, <span style="color:#666">9</span>}
+</code></pre></div>
+<p>可验证</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ghci
+GHCi, version <span style="color:#666">8</span>.2.2: http://www.haskell.org/ghc/  :? <span style="color:#a2f;font-weight:bold">for</span> <span style="color:#a2f">help</span>
+Prelude&gt; :l Automata.hs
+<span style="color:#666">[</span><span style="color:#666">1</span> of <span style="color:#666">1</span><span style="color:#666">]</span> Compiling Regex.Automata   <span style="color:#666">(</span> Automata.hs, interpreted <span style="color:#666">)</span>
+Ok, one module loaded.
+*Regex.Automata&gt; <span style="color:#a2f">let</span> <span style="color:#b8860b">nfa</span> <span style="color:#666">=</span> Automata <span style="color:#666">(</span>Set.fromList <span style="color:#666">[</span><span style="color:#666">0</span>..9<span style="color:#666">])</span>
+                                    <span style="color:#666">(</span>Set.fromList <span style="color:#666">[</span><span style="color:#b44">&#39;a&#39;</span>, <span style="color:#b44">&#39;b&#39;</span><span style="color:#666">])</span>
+                                    <span style="color:#666">(</span>Set.fromList <span style="color:#666">[</span>
+                                      Epsilon <span style="color:#666">0</span> <span style="color:#666">1</span>    ,
+                                      Epsilon <span style="color:#666">0</span> <span style="color:#666">7</span>    ,
+                                      Epsilon <span style="color:#666">1</span> <span style="color:#666">2</span>    ,
+                                      Epsilon <span style="color:#666">1</span> <span style="color:#666">4</span>    ,
+                                      Epsilon <span style="color:#666">6</span> <span style="color:#666">1</span>    ,
+                                      Edge <span style="color:#666">2</span> <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">3</span>   ,
+                                      Edge <span style="color:#666">4</span> <span style="color:#b44">&#39;b&#39;</span> <span style="color:#666">5</span>   ,
+                                      Epsilon <span style="color:#666">3</span> <span style="color:#666">6</span>    ,
+                                      Epsilon <span style="color:#666">5</span> <span style="color:#666">6</span>    ,
+                                      Epsilon <span style="color:#666">6</span> <span style="color:#666">7</span>    ,
+                                      Edge <span style="color:#666">7</span> <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">8</span>   ,
+                                      Edge <span style="color:#666">8</span> <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">9</span><span style="color:#666">])</span>
+                                      <span style="color:#666">0</span>
+                                    <span style="color:#666">(</span>Set.fromList <span style="color:#666">[</span><span style="color:#666">9</span><span style="color:#666">])</span>
+*Regex.Automata&gt; <span style="color:#a2f">let</span> <span style="color:#b8860b">dfa</span> <span style="color:#666">=</span> subsetConstruct nfa
+*Regex.Automata&gt; dfa
+states:            fromList <span style="color:#666">[</span>
+                     fromList <span style="color:#666">[</span><span style="color:#666">0</span>,1,2,4,7<span style="color:#666">]</span>       ,  -- A
+                     fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8<span style="color:#666">]</span>   ,  -- B
+                     fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8,9<span style="color:#666">]</span> ,  -- D
+                     fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">]</span>        -- C
+                   <span style="color:#666">]</span>
+input chars:       fromList <span style="color:#b44">&#34;ab&#34;</span>
+transitions:       fromList <span style="color:#666">[</span>
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">0</span>,1,2,4,7<span style="color:#666">])</span>       <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8<span style="color:#666">])</span>  ,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">0</span>,1,2,4,7<span style="color:#666">])</span>       <span style="color:#b44">&#39;b&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">])</span>    ,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8<span style="color:#666">])</span>   <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8,9<span style="color:#666">])</span>,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8<span style="color:#666">])</span>   <span style="color:#b44">&#39;b&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">])</span>    ,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8,9<span style="color:#666">])</span> <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8,9<span style="color:#666">])</span>,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8,9<span style="color:#666">])</span> <span style="color:#b44">&#39;b&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">])</span>    ,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">])</span>     <span style="color:#b44">&#39;a&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8<span style="color:#666">])</span>  ,
+                     Edge <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">])</span>     <span style="color:#b44">&#39;b&#39;</span> <span style="color:#666">(</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,4,5,6,7<span style="color:#666">])</span>
+                   <span style="color:#666">]</span>
+initial state:     fromList <span style="color:#666">[</span><span style="color:#666">0</span>,1,2,4,7<span style="color:#666">]</span>
+acceptable states  fromList <span style="color:#666">[</span>fromList <span style="color:#666">[</span><span style="color:#666">1</span>,2,3,4,6,7,8,9<span style="color:#666">]]</span></code></pre></div>
+<h3 id="conclusion">Conclusion</h3>
+
+<p>至此，子集构造法完毕，值得一提的是，自动机还是利用数据结构中的有向图实现效率会比这里用集合更好把握一些，如果将来有时间，我准备利用<code>C++/C</code>来实现以上算法。</p>
+
+<h3 id="reference">Reference</h3>
+
+<ul>
+<li><a href="https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811">Compilers: Principles, Techniques, and Tools (2nd Edition)</a></li>
+<li><a href="https://s3-ap-southeast-1.amazonaws.com/erbuc/files/4147_9df47151-b5ec-4912-be06-5e51f17ad707.pdf">From NFA to DFA</a></li>
+<li><a href="https://hackage.haskell.org/package/containers-0.5.11.0/docs/Data-Set.html">Hackage: Data.Set</a></li>
+</ul>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

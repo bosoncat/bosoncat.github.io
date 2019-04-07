@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Haskell on /dev/urandom</title>
+    <link>/tags/haskell/</link>
+    <description>Recent content in Haskell on /dev/urandom</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 09 Mar 2018 15:16:46 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/haskell/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>正则表达式引擎</title>
+      <link>/archives/hregex/</link>
+      <pubDate>Fri, 09 Mar 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/hregex/</guid>
+      <description>&lt;p&gt;上学期学了一些编译器前端的知识，接触到了&lt;code&gt;Flex&lt;/code&gt;，&lt;code&gt;Yacc&lt;/code&gt;这类的工具，同时也对正则表达式引擎有了很大的兴趣，于是总想着自己实现一个简单的正则表达式引擎，在这里是对这部分知识的一个总结，因为网上有很多资料总感觉缺头少尾，大多数人第一次读龙书[1]也是有些Hold不住，所以，这里拿一个&lt;code&gt;入门级&lt;/code&gt;的正则引擎作为例子，总结一下这部分知识&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Haskell中的惰性求值(Lazy evaluation)</title>
+      <link>/archives/lazy-evaluation-in-haskell/</link>
+      <pubDate>Sat, 03 Feb 2018 00:08:38 +0000</pubDate>
+      
+      <guid>/archives/lazy-evaluation-in-haskell/</guid>
+      <description>&lt;p&gt;本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

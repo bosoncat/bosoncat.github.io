@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Side Topic on /dev/urandom</title>
+    <link>/tags/side-topic/</link>
+    <description>Recent content in Side Topic on /dev/urandom</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 24 Apr 2018 15:45:21 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/side-topic/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>「node-ngspice」我的ngspice配置</title>
+      <link>/archives/node-ngspice/</link>
+      <pubDate>Tue, 24 Apr 2018 15:45:21 +0000</pubDate>
+      
+      <guid>/archives/node-ngspice/</guid>
+      <description>&lt;p&gt;这是一个最近花了整整一天写的很草率的项目&amp;hellip;不过肯定会完善的，至于接下来使用什么前端框架，打算敲定&lt;code&gt;vue.js&lt;/code&gt;了&amp;hellip;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>OSX下编译STM32程序</title>
+      <link>/archives/build-stm32-program-on-macos/</link>
+      <pubDate>Sat, 09 Sep 2017 01:25:01 +0000</pubDate>
+      
+      <guid>/archives/build-stm32-program-on-macos/</guid>
+      <description>&lt;p&gt;大二的这个暑假，被同学拉着去参加了电设，由于比赛用到了&lt;code&gt;STM32&lt;/code&gt;来作为处理器，所以就需要折腾一下&lt;code&gt;STM32&lt;/code&gt;。由于我算半个果粉，所以免不了要去折(zhuang)腾(B)。大家都知道32这类的单片机的开发流程都是利用&lt;code&gt;C&lt;/code&gt;或&lt;code&gt;C++&lt;/code&gt;写成代码后，利用工具编译成32能够识别的二进制或16进制码写到32的&lt;code&gt;Flash&lt;/code&gt;中。那么&lt;code&gt;windows&lt;/code&gt;下能完成的流程，&lt;code&gt;OS X&lt;/code&gt;下也一定能完成,嘻嘻。简述一下我们所需要的工具或者软件: -)&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

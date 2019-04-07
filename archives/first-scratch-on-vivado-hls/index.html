@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vivado HLS 初体验 | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Vivado HLS 初体验</span></h1>
+
+<h2 class="date">2018/07/24</h2>
+</div>
+
+<main>
+
+
+<p>其实很早就知道 Vivado HLS 这个东西了，但是身边人没有人使用它，只知道它是一个可以把 C/C++ 转化成 HDL 的一个软件。直到这个暑假，有幸在上海的 LLVM 社区中国的线下聚会上，有在北京 Xilinx 工作的工程师分享了一些有关 HLS 的底层实现方面的介绍，也很有趣。而刚好在前段时间的<del>划水</del>实习中，有要用到一丢丢的 HLS，所以记录一下使用心得。下面要使用的样例是来自 <a href="https://github.com/KastnerRG/pp4fpgas">pp4fpgas</a> 中的 Huffman Encoding 章节。源码可以到前面给出的 Github 链接找到。再次推荐一下这本书，从高层到底层的讲解都十分的棒，相见恨晚！</p>
+
+<h3 id="start-up">Start Up</h3>
+
+<p>找到仓库中的 examples 文件夹后，里面稍稍显得有点乱，找到里面的</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">examples
+  ├── huffman_canonize_tree_alternate.cpp <span style="color:#666">(</span>这个实际是不需要的<span style="color:#666">)</span>
+  ├── huffman_canonize_tree.cpp           
+  ├── huffman_compute_bit_length.cpp
+  ├── huffman_create_codeword.cpp
+  ├── huffman_create_tree.cpp
+  ├── huffman_encoding.cpp                <span style="color:#666">(</span>顶层文件<span style="color:#666">)</span>
+  ├── huffman_encoding.tcl                <span style="color:#666">(</span>创建工程的脚本，看一下就知道它做了什么<span style="color:#666">)</span>
+  ├── huffman_encoding_test2.cpp
+  ├── huffman_encoding_test.cpp
+  ├── huffman_filter.cpp
+  ├── huffman.h                           <span style="color:#666">(</span>一些模块的参数定义<span style="color:#666">)</span>
+  ├── huffman.random256.golden            <span style="color:#666">(</span>仿真要用到的参考值<span style="color:#666">)</span>
+  ├── huffman.random256.txt               <span style="color:#666">(</span>仿真要用到的输入值<span style="color:#666">)</span>
+  ├── huffman_sort.cpp
+  ├── huffman_truncate_tree.cpp</code></pre></div>
+<p>为了让我们的工程看起来简洁一些，把它们拷贝出来，单独放到一个工程文件夹中吧！像这样</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">axi-huffman-encoding-core
+├── huffman_encoding.tcl
+├── src <span style="color:#666">(</span>编译 IP core 需要的源文件<span style="color:#666">)</span>
+│   ├── huffman_canonize_tree.cpp
+│   ├── huffman_compute_bit_length.cpp
+│   ├── huffman_create_codeword.cpp
+│   ├── huffman_create_tree.cpp
+│   ├── huffman_encoding.cpp
+│   ├── huffman_filter.cpp
+│   ├── huffman.h
+│   ├── huffman_sort.cpp
+│   └── huffman_truncate_tree.cpp
+└── <span style="color:#a2f">test</span> <span style="color:#666">(</span>放一些测试样例或者测试脚本<span style="color:#666">)</span>
+    ├── huffman_encoding_test.cpp
+    ├── huffman.random256.golden
+    └── huffman.random256.txt</code></pre></div>
+<p>现在准备工作就差不多了，现在有两种方式来构建我们的项目，1. 利用 tcl 脚本来帮助我们自动完成所有的步骤。2. 手动创建 HLS 工程。因为原作者提供了写好的 tcl 脚本，所以这样比较方便一些，但我们修改了工程目录结构，需要对 tcl 脚本做一点小小的改动。拿比较顺手的编辑器打开 <code>huffman_encoding.tcl</code> ，根据自己的需要做一些调整</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-tcl" data-lang="tcl"><span style="color:#b8860b">open_project</span> huffman_encoding.proj <span style="color:#666">-</span>reset  <span style="">#</span> 创建一个 huffman_encoding.proj 的工程目录<span style="">，</span>不需要修改
+<span style="color:#b8860b">add_files</span> <span style="color:#a2f;font-weight:bold">{</span>     <span style="color:#080;font-style:italic"># 添加需要的源文件，需要修改路径为
+</span><span style="color:#080;font-style:italic"></span>  <span style="color:#b8860b">.</span><span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_canonize_tree.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_create_tree.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_filter.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_compute_bit_length.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_encoding.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_sort.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_create_codeword.cpp 
+  .<span style="color:#666">/</span>src<span style="color:#666">/</span>huffman_truncate_tree.cpp
+<span style="color:#a2f;font-weight:bold">}</span>
+
+<span style="color:#b8860b">add_files</span> <span style="color:#666">-</span>tb <span style="color:#a2f;font-weight:bold">{</span> <span style="color:#b8860b">.</span><span style="color:#666">/</span>test<span style="color:#666">/</span>huffman_encoding_test.cpp <span style="color:#a2f;font-weight:bold">}</span> <span style="color:#666">-</span>cflags <span style="color:#b44">&#34;-I./src&#34;</span> <span style="">#</span> 添加测试文件<span style="">，</span>因为 huffman.h 不在同一个文件夹<span style="">，</span>这里要设置编译器参数 <span style="color:#666">-</span>I 帮助编译器寻找头文件<span style="">，</span>就像平时使用 gcc 或者 clang 一样<span style="">，</span>因为 HLS 是基于它们的嘛
+<span style="color:#b8860b">add_files</span> <span style="color:#666">-</span>tb <span style="color:#a2f;font-weight:bold">{</span> <span style="color:#b8860b">.</span><span style="color:#666">/</span>test<span style="color:#666">/</span>huffman.random256.txt .<span style="color:#666">/</span>test<span style="color:#666">/</span>huffman.random256.golden <span style="color:#a2f;font-weight:bold">}</span>
+<span style="color:#b8860b">set_top</span> huffman_encoding <span style="">#</span> 把 huffman_encoding.cpp 中的 huffman_encoding 函数设置为顶层文件
+<span style="color:#080;font-style:italic">#set_top create_tree
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">open_solution</span> solution <span style="color:#666">-</span>reset      <span style="">#</span> 创建一个 solution
+<span style="color:#b8860b">set_part</span> xc7z020clg400-1           <span style="">#</span> 设置器件类型<span style="">，</span>我自已使用的是 Zynq-7020 所以我修改了这里
+<span style="color:#b8860b">create_clock</span> <span style="color:#666">-</span>period <span style="color:#666">5</span>             <span style="">#</span> 时钟约束<span style="">，</span>按需求修改
+<span style="color:#b8860b">csim_design</span> <span style="color:#666">-</span>compiler clang        <span style="">#</span> 选择编译器为 clang<span style="">，</span>进行仿真
+<span style="color:#b8860b">csynth_design</span>                      <span style="">#</span> 进行 C 综合
+<span style="color:#080;font-style:italic"># 这里加一句导出 IP 核，后面是一些基本参数，可以参考 ug902 来了解这里的设置
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">export_design</span> <span style="color:#666">-</span>flow syn <span style="color:#666">-</span>format ip_catalog <span style="color:#666">-</span>rtl verilog <span style="color:#666">-</span>vendor <span style="color:#b44">&#34;com.xilinx.hls&#34;</span> <span style="color:#666">-</span>version <span style="color:#b44">&#34;0.0.1&#34;</span>
+<span style="color:#a2f">exit</span></code></pre></div>
+<p>在当前文件夹打开 Vivado HLS 命令行，Linux 下可以直接把 <code>vivado_hls</code> 添加到环境变量，Windows 下叫做 <code>Vivado HLS Command  Line Prompt</code>，输入 <code>vivado_hls -f huffman_encoding.tcl</code> 等待脚本运行完毕，就可以看到生成的 IP 核了。</p>
+
+<h5 id="known-issues-因为原作者的开发环境是-linux-系统-因为他的-huffman-random256-golden-文件的编码形式是-linux-下的编码形式-与-windows-平台是不同的-所以进行-c-仿真或者联合仿真的时候每一行都会报错的-解决办法是注释掉csim-design-那一行-或者等脚本跑完使用">Known issues: 因为原作者的开发环境是 Linux 系统（因为他的 huffman.random256.golden 文件的编码形式是 Linux 下的编码形式，与 Windows 平台是不同的，所以进行 C 仿真或者联合仿真的时候每一行都会报错的，解决办法是注释掉csim_design 那一行，或者等脚本跑完使用</h5>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">axi-huffman-encoding-core/huffman_encoding.proj/solution/csim/build/huffman.random256.out</code></pre></div>
+<p>替换掉 golden 文件，因为这是由你使用的系统所生成，所以文本的换行符就是根据你的系统来的，谁叫你们不使用 Linux 呢？ :P）</p>
+
+<p>到这里，我们已经可以生成 IP 核了！不过，现在生成的 IP 核的控制信号是很复杂的，一般我们喜欢把控制信号以及速度要求不高的数据信号修改为 AXI-Lite 总线形式的，打开 <code>huffman_encoding.cpp</code> 添加几句编译器的编译选项</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#0b0;font-weight:bold">void</span> <span style="color:#00a000">huffman_encoding</span>(
+  <span style="color:#080;font-style:italic">/* input  */</span> Symbol symbol_histogram[INPUT_SYMBOL_SIZE],
+  <span style="color:#080;font-style:italic">/* output */</span> PackedCodewordAndLength encoding[INPUT_SYMBOL_SIZE],
+  <span style="color:#080;font-style:italic">/* output */</span> <span style="color:#0b0;font-weight:bold">int</span> <span style="color:#666">*</span>num_nonzero_symbols) {
+
+<span style="color:#080;font-style:italic">/*
+</span><span style="color:#080;font-style:italic"> * Create an new AXI-LITE bus as control bus
+</span><span style="color:#080;font-style:italic"> * */</span>
+<span style="color:#080">#pragma HLS INTERFACE s_axilite port=return
+</span><span style="color:#080"></span>
+<span style="color:#080;font-style:italic">/*
+</span><span style="color:#080;font-style:italic"> * Create an AXI bus for data transferring
+</span><span style="color:#080;font-style:italic"> * */</span>
+<span style="color:#080">#pragma HLS INTERFACE s_axilite port=symbol_histogram
+</span><span style="color:#080">#pragma HLS INTERFACE s_axilite port=encoding
+</span><span style="color:#080">#pragma HLS INTERFACE s_axilite port=num_nonzero_symbols
+</span></code></pre></div>
+<p>由于 Huffman 编码本身是为了无损压缩的，所以对存储空间的占用也比较苛刻，很多情况下，综合出来的存储器往往是每个地址对应两个甚至更多个数据单元(虽然这样并没什么，只是增加了一丢丢计算地址的难度)，为了使后面工作简化一些以及简单起见，我们修改一些头文件里的参数。打开 <code>huffman.h</code> 把 <code>const static int SYMBOL_BITS = 10;</code> 修改为 <code>const static int SYMBOL_BITS = 32;</code> 这样生成的 IP 中，一个地址只对应一个数据，测试时候会方便一些，在对存储要求较高的时候可以按照源代码给的 <code>log2(字符集大小)</code> 进行计算。现在重新编译我们的项目即可。</p>
+
+<h3 id="block-design">Block Design</h3>
+
+<p>打开 Vivado 的 IP Catalog 可以添加刚刚生成的 IP，像下面这个样子，挂载到 Zynq 芯片周围即可。</p>
+
+<p><img src="./huffman_encoding_core.png" alt="huffman-encoding-core" /></p>
+
+<p><img src="./block-design.png" alt="block-design" /></p>
+
+<h3 id="generate-hardware-run">Generate Hardware &amp; Run</h3>
+
+<p>这里由于笔者使用的是 PYNQ 板卡，对于不含操作系统裸奔的板卡，笔者还未尝试，请自行查阅资料。有了 Block Design 后，生成 HDL Wrapper 并综合生成 bit 文件。这里，笔者自己写了这个模块的一些单元测试，放到了 <a href="https://github.com/sopynq/huffman-encoding-core">Github</a>，按照 PYNQ 的使用方法，下载到板上使用即可。</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#080;font-style:italic"># 这里的寄存器地址注释来自于 HLS 工程自动生成的驱动代码中</span>
+<span style="color:#080;font-style:italic"># 所在目录为 </span>
+<span style="color:#080;font-style:italic"># (axi-huffman-encoding-core/huffman_encoding.proj/solution/impl/misc/drivers/huffman_encoding_v0_0/src/xhuffman_encoding_hw.h)</span>
+<span style="color:#080;font-style:italic"># AXILiteS</span>
+<span style="color:#080;font-style:italic"># 0x0000 : Control signals  # 控制信号地址，bit 0 处写 1 即可让模块开始工作</span>
+<span style="color:#080;font-style:italic">#          bit 0  - ap_start (Read/Write/COH)</span>
+<span style="color:#080;font-style:italic">#          bit 1  - ap_done (Read/COR)</span>
+<span style="color:#080;font-style:italic">#          bit 2  - ap_idle (Read)</span>
+<span style="color:#080;font-style:italic">#          bit 3  - ap_ready (Read)</span>
+<span style="color:#080;font-style:italic">#          bit 7  - auto_restart (Read/Write)</span>
+<span style="color:#080;font-style:italic">#          others - reserved</span>
+<span style="color:#080;font-style:italic"># 0x0004 : Global Interrupt Enable Register # 允许中断的寄存器，写 1 即可允许产生 interrupt 信号</span>
+<span style="color:#080;font-style:italic">#          bit 0  - Global Interrupt Enable (Read/Write)</span>
+<span style="color:#080;font-style:italic">#          others - reserved</span>
+<span style="color:#080;font-style:italic"># 0x0008 : IP Interrupt Enable Register (Read/Write) # 判断和决定中断种类的寄存器</span>
+<span style="color:#080;font-style:italic">#          bit 0  - Channel 0 (ap_done)              # bit 0 为 done 信号的中断</span>
+<span style="color:#080;font-style:italic">#          bit 1  - Channel 1 (ap_ready)             # bit 1 为 ready 信号的中断</span>
+<span style="color:#080;font-style:italic">#          others - reserved</span>
+<span style="color:#080;font-style:italic"># 0x000c : IP Interrupt Status Register (Read/TOW)   # 中断状态的寄存器</span>
+<span style="color:#080;font-style:italic">#          bit 0  - Channel 0 (ap_done)</span>
+<span style="color:#080;font-style:italic">#          bit 1  - Channel 1 (ap_ready)</span>
+<span style="color:#080;font-style:italic">#          others - reserved</span>
+<span style="color:#080;font-style:italic"># 0x1000 : Data signal of num_nonzero_symbols             # 非 0 标志的个数，请参阅 IP core 的使用方法和用途</span>
+<span style="color:#080;font-style:italic">#          bit 31~0 - num_nonzero_symbols[31:0] (Read)</span>
+<span style="color:#080;font-style:italic"># 0x1004 : Control signal of num_nonzero_symbols          # 非 0 标志的个数的寄存器的控制信号</span>
+<span style="color:#080;font-style:italic">#          bit 0  - num_nonzero_symbols_ap_vld (Read/COR)</span>
+<span style="color:#080;font-style:italic">#          others - reserved</span>
+<span style="color:#080;font-style:italic"># 0x0400 ~</span>
+<span style="color:#080;font-style:italic"># 0x07ff : Memory &#39;symbol_histogram_value_V&#39; (256 * 32b)     # 写入频率表中 symbols 的一片内存</span>
+<span style="color:#080;font-style:italic">#          Word n : bit [31:0] - symbol_histogram_value_V[n]</span>
+<span style="color:#080;font-style:italic"># 0x0800 ~</span>
+<span style="color:#080;font-style:italic"># 0x0bff : Memory &#39;symbol_histogram_frequency_V&#39; (256 * 32b) # 写入频率表中 frequency 的一片内存</span>
+<span style="color:#080;font-style:italic">#          Word n : bit [31:0] - symbol_histogram_frequency_V[n]</span>
+<span style="color:#080;font-style:italic"># 0x0c00 ~</span>
+<span style="color:#080;font-style:italic"># 0x0fff : Memory &#39;encoding_V&#39; (256 * 32b)                   # 最后的 encoding 结果，前 27 位为编码结果，后 5 位为编码字长</span>
+<span style="color:#080;font-style:italic">#          Word n : bit [31:0] - encoding_V[n]</span>
+<span style="color:#080;font-style:italic"># (SC = Self Clear, COR = Clear on Read, TOW = Toggle on Write, COH = Clear on Handshake)</span>
+
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">pynq</span> <span style="color:#a2f;font-weight:bold">import</span> Overlay
+
+overlay <span style="color:#666">=</span> Overlay(<span style="color:#b44">&#34;../bitstream/huffman-encoding-test.bit&#34;</span>)
+overlay<span style="color:#666">.</span>download()     <span style="color:#080;font-style:italic"># 下载 bit 文件</span>
+
+huffman_encoding <span style="color:#666">=</span> overlay<span style="color:#666">.</span>huffman_encoding_0
+
+symbol_table <span style="color:#666">=</span> [   <span style="color:#080;font-style:italic"># 频率表，这里使用字典进行表示</span>
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;a&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">3</span> }, 
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;b&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">1</span> },
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;c&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">2</span> },
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;d&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">5</span> },
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;e&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">5</span> },
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;f&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">1</span> },
+    { <span style="color:#b44">&#39;symbol&#39;</span>: <span style="color:#b44">&#39;g&#39;</span>, <span style="color:#b44">&#39;freq&#39;</span>: <span style="color:#666">0</span> },
+]
+
+<span style="color:#080;font-style:italic"># 写入频率信息</span>
+<span style="color:#a2f;font-weight:bold">for</span> idx, sym <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#a2f">enumerate</span>(symbol_table):
+    <span style="color:#080;font-style:italic"># write symbol &amp; frequency</span>
+    huffman_encoding<span style="color:#666">.</span>write(<span style="color:#666">0x0400</span> <span style="color:#666">+</span> <span style="color:#666">4</span><span style="color:#666">*</span>idx, <span style="color:#a2f">ord</span>(sym[<span style="color:#b44">&#39;symbol&#39;</span>]))
+    huffman_encoding<span style="color:#666">.</span>write(<span style="color:#666">0x0800</span> <span style="color:#666">+</span> <span style="color:#666">4</span><span style="color:#666">*</span>idx, sym[<span style="color:#b44">&#39;freq&#39;</span>])
+    
+<span style="color:#080;font-style:italic"># 开始计算</span>
+huffman_encoding<span style="color:#666">.</span>write(<span style="color:#666">0x0000</span>, <span style="color:#666">1</span>)
+
+<span style="color:#a2f;font-weight:bold">from</span> <span style="color:#00f;font-weight:bold">time</span> <span style="color:#a2f;font-weight:bold">import</span> sleep
+<span style="color:#080;font-style:italic"># 等待一秒进行读取，也可以使用中断，参见笔者代码 (https://github.com/sopynq/huffman-encoding-core/blob/master/tests/irq-test/notebook/irq-test.ipynb)</span>
+sleep(<span style="color:#666">1</span>)
+
+<span style="color:#080;font-style:italic"># read number of symbols</span>
+num <span style="color:#666">=</span> huffman_encoding<span style="color:#666">.</span>read(<span style="color:#666">0x1000</span>)
+<span style="color:#a2f;font-weight:bold">print</span>(<span style="color:#b44">&#39;There are &#39;</span> <span style="color:#666">+</span> <span style="color:#a2f">str</span>(num) <span style="color:#666">+</span> <span style="color:#b44">&#39; symbols in huffman tree:&#39;</span>)
+
+<span style="color:#080;font-style:italic"># read encoding</span>
+get_bin <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">lambda</span> x, n: format(x, <span style="color:#b44">&#39;b&#39;</span>)<span style="color:#666">.</span>zfill(n)
+<span style="color:#a2f;font-weight:bold">for</span> idx, sym <span style="color:#a2f;font-weight:bold">in</span> <span style="color:#a2f">enumerate</span>(symbol_table):
+    encoding <span style="color:#666">=</span> huffman_encoding<span style="color:#666">.</span>read(<span style="color:#666">0x0c00</span> <span style="color:#666">+</span> <span style="color:#666">4</span><span style="color:#666">*</span><span style="color:#a2f">ord</span>(sym[<span style="color:#b44">&#39;symbol&#39;</span>]))
+    <span style="color:#a2f;font-weight:bold">print</span>(<span style="color:#b44">&#39;symbol : &#39;</span> <span style="color:#666">+</span> sym[<span style="color:#b44">&#39;symbol&#39;</span>] <span style="color:#666">+</span> <span style="color:#b44">&#39;, code word : &#39;</span> <span style="color:#666">+</span> get_bin(encoding, <span style="color:#666">32</span>))</code></pre></div>
+<p><img src="./notebook-shot.png" alt="notebook" /></p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>Vivado HLS 是一个十分有趣的工具，很多情况下利用它可以快速生成我们需要的算法，并且我个人认为它在 SoC 之类方面的应用以后一定会十分重要！PYNQ 也是一款十分优秀的板卡，能够快速上手，并可动态的改变 PL 端的逻辑，之前一直在思考为什么不能利用 ARM 核来动态的刷新周围电路，结果 PYNQ 真的可以这样操作，算是让我长了见识！</p>
+
+<h3 id="reference">Reference</h3>
+
+<ul>
+<li><a href="https://github.com/KastnerRG/pp4fpgas">pp4fpgas</a></li>
+<li><a href="https://www.xilinx.com/support/documentation/sw_manuals/xilinx2014_1/ug902-vivado-high-level-synthesis.pdf">ug902</a> HLS 的手册，还是不错的</li>
+</ul>
+
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

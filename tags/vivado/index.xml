@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vivado on /dev/urandom</title>
+    <link>/tags/vivado/</link>
+    <description>Recent content in Vivado on /dev/urandom</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 24 Jul 2018 15:16:46 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/vivado/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Vivado HLS 初体验</title>
+      <link>/archives/first-scratch-on-vivado-hls/</link>
+      <pubDate>Tue, 24 Jul 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/first-scratch-on-vivado-hls/</guid>
+      <description>其实很早就知道 Vivado HLS 这个东西了，但是身边人没有人使用它，只知道它是一个可以把 C/C++ 转化成 HDL 的一个软件。直到这个暑假，有幸在上海的 LLVM 社区中国的线下聚会上，有在北京 Xilinx 工作的工程师分享了一些有关 HLS 的底层实现方面的介绍，也很有趣。而刚好在前段时间的划水实习中，有要用到一丢丢的 HLS，所以记录一下使用心得。下面要使用的样例是来自 pp4fpgas 中的 Huffman Encoding 章节。源码可以到前面给出的 Github 链接找到。再次推荐一下这本书，从高层到底层的讲解都十分的棒，相见恨晚！
+Start Up 找到仓库中的 examples 文件夹后，里面稍稍显得有点乱，找到里面的
+examples ├── huffman_canonize_tree_alternate.cpp (这个实际是不需要的) ├── huffman_canonize_tree.cpp ├── huffman_compute_bit_length.cpp ├── huffman_create_codeword.cpp ├── huffman_create_tree.cpp ├── huffman_encoding.cpp (顶层文件) ├── huffman_encoding.tcl (创建工程的脚本，看一下就知道它做了什么) ├── huffman_encoding_test2.cpp ├── huffman_encoding_test.cpp ├── huffman_filter.cpp ├── huffman.h (一些模块的参数定义) ├── huffman.random256.golden (仿真要用到的参考值) ├── huffman.random256.txt (仿真要用到的输入值) ├── huffman_sort.cpp ├── huffman_truncate_tree.cpp 为了让我们的工程看起来简洁一些，把它们拷贝出来，单独放到一个工程文件夹中吧！像这样
+axi-huffman-encoding-core ├── huffman_encoding.tcl ├── src (编译 IP core 需要的源文件) │ ├── huffman_canonize_tree.</description>
+    </item>
+    
+    <item>
+      <title>更好的管理 Vivado 项目</title>
+      <link>/archives/manage-vivado-projects/</link>
+      <pubDate>Tue, 10 Jul 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/manage-vivado-projects/</guid>
+      <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

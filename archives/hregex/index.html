@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>正则表达式引擎 | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">正则表达式引擎</span></h1>
+
+<h2 class="date">2018/03/09</h2>
+</div>
+
+<main>
+<p>上学期学了一些编译器前端的知识，接触到了<code>Flex</code>，<code>Yacc</code>这类的工具，同时也对正则表达式引擎有了很大的兴趣，于是总想着自己实现一个简单的正则表达式引擎，在这里是对这部分知识的一个总结，因为网上有很多资料总感觉缺头少尾，大多数人第一次读龙书[1]也是有些Hold不住，所以，这里拿一个<code>入门级</code>的正则引擎作为例子，总结一下这部分知识</p>
+
+<h3 id="introduction">Introduction</h3>
+
+<p>首先介绍一下我的正则引擎的实现情况</p>
+
+<pre><code>()      -- 括号的用途我和Russ Cox的功能是一样的，为了优先级考虑
+|       -- 可选
+*       -- 重复0次以上
++       -- 重复1次以上
+?       -- 重复0次或1次
+[az]    -- 字符集合
+[a-z]   -- 字符范围
+[^az]   -- 负值字符集合
+[^a-z]  -- 负值字符范围
+\ch     -- 功能字符，实现但未添加，可自行扩展
+{m, n}  -- 重复次数，未实现，可自行扩展
+</code></pre>
+
+<p>基本功能就是以上所罗列的了，有些未实现的，譬如说<code>{m, n}</code>可以参考本文自行添加，因为本学期需要考研/实习，重构代码就留到后面再说吧，以上功能的代码大约1000-1500行左右，不算很大的项目，可以作为练手项目进行学习，项目地址<a href="https://github.com/higuoxing/Haskell-Re">hregex</a> <code>old-version</code> 分支</p>
+
+<h3 id="implementation">Implementation</h3>
+
+<p>首先分析一下工作流程，在大多数课堂上听到老师所讲的方法大约是这样的</p>
+
+<pre><code>将正则表达式转化成epsilon-NFA
+epsilon-NFA转化为DFA
+最小化DFA
+DFA模拟(匹配)
+</code></pre>
+
+<p>但实际上，我是从底层开始实现的，有点类似从底层一层一层抽象出来的机器，因为如果从解析正则语言直接构造NFA开始，我甚至根本不知道怎么去设计<code>NFA</code>的数据结构。所以，在我看来正确的做法是从底层的NFA开始，然后构造正则语法，然后将正则表达式解释成我们的正则语法，最后交给<code>NFA</code>，<code>DFA</code>处理就好了</p>
+
+<h3 id="regular-syntex-data-structure">Regular Syntex Data Structure</h3>
+
+<p>我的正则语法参考了Regular Expression and Automata using Haskell[3]，但为了扩展其他功能，这里我加了一个<code>group</code>，其他功能也可以依此添加数据结构</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-haskell" data-lang="haskell"><span style="color:#a2f;font-weight:bold">data</span> <span style="color:#0b0;font-weight:bold">Regex</span> <span style="color:#a2f;font-weight:bold">=</span> <span style="color:#0b0;font-weight:bold">Epsilon</span>
+           <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Literal</span> <span style="color:#0b0;font-weight:bold">Char</span>    <span style="color:#080;font-style:italic">-- 这里得益于Haskell的设计是基于UTF-8的</span>
+           <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Alt</span> <span style="color:#0b0;font-weight:bold">Regex</span> <span style="color:#0b0;font-weight:bold">Regex</span> <span style="color:#080;font-style:italic">-- alternative</span>
+           <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Con</span> <span style="color:#0b0;font-weight:bold">Regex</span> <span style="color:#0b0;font-weight:bold">Regex</span> <span style="color:#080;font-style:italic">-- concatenation</span>
+           <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Star</span> <span style="color:#0b0;font-weight:bold">Regex</span>      <span style="color:#080;font-style:italic">-- (re)*</span>
+           <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">Plus</span> <span style="color:#0b0;font-weight:bold">Regex</span>      <span style="color:#080;font-style:italic">-- (re)+</span>
+           <span style="color:#666">|</span> <span style="color:#0b0;font-weight:bold">ZOO</span> <span style="color:#0b0;font-weight:bold">Regex</span>       <span style="color:#080;font-style:italic">-- (re)? zero or one</span></code></pre></div>
+<p>至于如何生存NFA就十分简单了，就是那十分经典的做法，字符、表达式连接、表达式分支、表达式重复，按照集合的规则添加状态和边就可以了</p>
+
+<pre><code>(1)  --&gt;o-(a)-o    --&gt;o-(b)-o
+(2)
+         +-------+
+         | regex |
+         o-------o
+        /         \
+     --o           o
+        \         /
+         o-------o
+         | regex |
+         +-------+
+
+(3)
+       +-------+-------+
+     --o regex o regex o
+       +-------+-------+
+
+(4)
+         +-------+
+         |       ^
+         +-------+
+     -o--o regex o--o
+      |  +-------+  ^
+      +-------------+
+
+</code></pre>
+
+<h3 id="top-down-parsing">Top-Down Parsing</h3>
+
+<p>我在初学的时候，总是想知道正则表达式是怎么解析成<code>epsilon-NFA</code>的，参考了Russ Cox的<code>C语言描述</code>又感到有些不太适合我，因为他将正则表达式直接根据优先级转成了后缀表达式，之后遍历一次表达式就拿两个栈完成了<code>epsilon-NFA</code>的构建。有些一头雾水。不过Russ Cox的文章确实很有参考意义。首先，构造<code>epsilon-NFA</code>在我看来，有两种都算简单操作，但其实殊途同归</p>
+
+<ul>
+<li><p>Russ Cox的构造后缀表达式</p></li>
+
+<li><p>构建AST</p></li>
+</ul>
+
+<p>我的实现方法选择了后者，主要是我个人对后缀表达式没什么好感，虽然两种方法思想都是一致的，在构建AST上，我参考了<a href="https://stackoverflow.com/questions/1435411/what-is-the-bnf-for-a-regex-in-order-to-write-a-full-or-partial-parser">Stack Overflow</a>的回答，一个PCRE的简单的BNF语法，利用语法树，我们之后还可以根据需求添加更多的功能，这一点，我认为仅仅用后缀表达式是没办法比的</p>
+
+<pre><code>&lt;RE&gt;            ::= &lt;union&gt; | &lt;simple-RE&gt;
+&lt;union&gt;         ::= &lt;RE&gt; &quot;|&quot; &lt;simple-RE&gt;
+&lt;simple-RE&gt;     ::= &lt;concatenation&gt; | &lt;basic-RE&gt;
+&lt;concatenation&gt; ::= &lt;simple-RE&gt; &lt;basic-RE&gt;
+&lt;basic-RE&gt;      ::= &lt;star&gt; | &lt;plus&gt; | &lt;elementary-RE&gt;
+&lt;star&gt;          ::= &lt;elementary-RE&gt; &quot;*&quot;
+&lt;plus&gt;          ::= &lt;elementary-RE&gt; &quot;+&quot;
+&lt;elementary-RE&gt; ::= &lt;group&gt; | &lt;any&gt; | &lt;eos&gt; | &lt;char&gt; | &lt;set&gt;
+&lt;group&gt;         ::= &quot;(&quot; &lt;RE&gt; &quot;)&quot;
+&lt;any&gt;           ::= &quot;.&quot;
+&lt;eos&gt;           ::= &quot;$&quot;
+&lt;char&gt;          ::= any non metacharacter | &quot;\&quot; metacharacter
+&lt;set&gt;           ::= &lt;positive-set&gt; | &lt;negative-set&gt;
+&lt;positive-set&gt;  ::= &quot;[&quot; &lt;set-items&gt; &quot;]&quot;
+&lt;negative-set&gt;  ::= &quot;[^&quot; &lt;set-items&gt; &quot;]&quot;
+&lt;set-items&gt;     ::= &lt;set-item&gt; | &lt;set-item&gt; &lt;set-items&gt;
+&lt;set-items&gt;     ::= &lt;range&gt; | &lt;char&gt;
+&lt;range&gt;         ::= &lt;char&gt; &quot;-&quot; &lt;char&gt;
+</code></pre>
+
+<p>这下，我们的工作简单多了,我们只要按照我们之前定义的NFA数据结构把这颗树中的结点解析到<code>NFA</code>中就行了，这里需要注意一个问题，就是老生常谈的左递归(left-recursion)问题，大约在<code>RE</code>和<code>union</code>这里，按照常规操作消除左递归就没什么问题了,至于生成了NFA后，参考我上一篇文章就可以了，顺提一嘴，<code>Monadic Parser</code>确实很有用，写几个Parser后，根据这个思想也可以应用到很多地方</p>
+
+<h3 id="conclusion">Conclusion</h3>
+
+<p>这个项目本身只有1000多行代码，但是确实包含了很多算法问题，我实现的自动机也是十分低效的，因为我的状态机的边没有表示成范围，所以在构造类似<code>[a-z]</code>或者<code>[^a-z]</code>这类的东西时，生成的NFA是根据<code>(a|b|c|d|...|z)</code>来生成的，在我上一篇文章中已经指出了问题所在，这个学期可能没有时间重构代码了，不过，基于这个思想，很多超出<code>Type-3</code>语法的扩展正则表达式也可以实现了</p>
+
+<h3 id="reference">Reference</h3>
+
+<ul>
+<li><a href="https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811">Compilers: Principles, Techniques, and Tools (2nd Edition)</a></li>
+<li><a href="https://swtch.com/~rsc/regexp/regexp1.html">Regular Expression Matching Can Be Simple And Fast</a></li>
+<li><a href="https://www.cs.kent.ac.uk/people/staff/sjt/craft2e/regExp.pdf">Regular Expressions and Automata using Haskell</a></li>
+</ul>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

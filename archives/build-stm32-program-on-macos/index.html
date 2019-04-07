@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OSX下编译STM32程序 | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">OSX下编译STM32程序</span></h1>
+
+<h2 class="date">2017/09/09</h2>
+</div>
+
+<main>
+<p>大二的这个暑假，被同学拉着去参加了电设，由于比赛用到了<code>STM32</code>来作为处理器，所以就需要折腾一下<code>STM32</code>。由于我算半个果粉，所以免不了要去折(zhuang)腾(B)。大家都知道32这类的单片机的开发流程都是利用<code>C</code>或<code>C++</code>写成代码后，利用工具编译成32能够识别的二进制或16进制码写到32的<code>Flash</code>中。那么<code>windows</code>下能完成的流程，<code>OS X</code>下也一定能完成,嘻嘻。简述一下我们所需要的工具或者软件: -)</p>
+
+<ul>
+<li><code>Macbook</code>或者装了黑苹果的电脑一台</li>
+<li><code>STM32</code>开发板一块（笔者使用的是<code>F407Discovery</code>和<code>Alienware</code>生产的<code>F103VCT6</code>都已经过测试，不是这两种型号的小伙伴也不要着急，可以先试着读下去，也许你就有了灵感）</li>
+<li><code>ST-Link</code>下载器一个（某宝盗版大约几块到几十不等，质量还算可以，但本人还是觉得支持正版比较好）</li>
+</ul>
+
+<p>以上就是我们所需要的硬件设备了，其实并没有多复杂，很多做开发板的厂商喜欢用<code>CH340</code>这类的串口芯片来写入32的存储器，这样的方法我个人觉得巨慢无比，很多时候浪费的时间都够写一次FPGA芯片了。所以这里只使用最方便的工具<code>ST-Link</code>，至于串口烧写工具肯定是有，不过<strong>不建议</strong>这样去做。</p>
+
+<p>剩下的就是软件工具了，开始之前，首先确定你的系统有这些依赖项：</p>
+
+<ul>
+<li><code>libusb</code>， <code>libusb-compat</code>（看名字就知道了吧，是有关usb的依赖项）</li>
+<li><code>pkg-config</code>（编译时期要用到，大概是编译过程中告诉编译器库信息的东东，manul手册这样写*Return metainformation about installed libraries*） 其实就是<code>GNU</code>的那一套玩意儿了</li>
+<li><code>autoconf</code>，<code>automake</code>和<code>libtool</code></li>
+</ul>
+
+<p>如果某一项没有被安装利用<code>brew install &lt;package&gt;</code>解决就行啦。</p>
+
+<p>想要在OS X上开发STM32最重要的工具当然是编译器了，对于开发ARM芯片当然也有对应的编译器，叫<code>arm-none-eabi-gcc</code>，<code>GNU</code>提供了一整套的工具链，<a href="https://launchpad.net/gcc-arm-embedded/+download">GNU-ARM-Embedded-Toolchain</a>上面可以下载到整个工具链并且有详细的安装过程，这里就不赘述了。最后别忘了加入到环境变量中</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#a2f">export</span> <span style="color:#b8860b">PATH</span><span style="color:#666">=</span>xx/xxx/gcc-arm-none-eabi/bin:<span style="color:#b8860b">$PATH</span></code></pre></div>
+<p>我为了省事直接写到了<code>.zshrc</code>下，其实是个很不好的习惯。</p>
+
+<p>有了上面的工具链，我们就可以愉快的编译代码了，最后只需要再安装一个<a href="https://github.com/texane/stlink">st-link</a>的命令行工具就行了，在github的README中有详细的安装和debug的过程，这里也不再赘述。只要自己找一个合适自己使用的Makefile文件就行，gcc会根据代码的依赖关系帮你编译成一个<code>.elf</code>文件，最后<code>arm-none-eabi-objcopy</code>利用这个<code>.elf</code>文件生成一个<code>.hex</code>或者<code>.bin</code>文件，这个要根据自己的需求来，不过根据笔者的经验.bin文件多半是烧写不进去的&hellip;囧。</p>
+
+<p>对<code>Makefile</code>熟悉之后看这个会好一些，我也是从头到尾折腾了将近一个礼拜，F407这块开发板很好搞，现成的资料有很多，但是我这块淘宝买来的F103就很坑，店家给的教程连<code>bootloader</code>部分的代码都是店家自己写的&hellip;好在ST出的芯片所有的东西包括源代码，手册什么的都可以在<a href="http://www.st.com/content/st_com/en.html">ST官网</a>下载得到。下面给出我自修改的一个<code>F407</code>的<code>Makefile</code>文件以及我自己文件树。为了方便阅读并与文件树对应，这里的Makefile未使用正则表达式。Makefile的注释应该比较清楚，动手自己改一个会对Makefile的结构更加理解&hellip;</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-makefile" data-lang="makefile"><span style="color:#080;font-style:italic"># Original Author   :   Malkavian(His github repo is : https://github.com/Malkavian/tuts.git)
+</span><span style="color:#080;font-style:italic"># Modified          :   Eric(higuoxing@outlook.com)
+</span><span style="color:#080;font-style:italic"># I modified his makefile to make stm32 easy to be programmed under Linux or OS X
+</span><span style="color:#080;font-style:italic"># Moreover, I could learn more about stm32 programming from this simple makefile
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic"># Makefile for STM32F4Discovery
+</span><span style="color:#080;font-style:italic"># My File tree...
+</span><span style="color:#080;font-style:italic"># STM32F4DiscoveryBlankProject
+</span><span style="color:#080;font-style:italic"># 	└──STM32F4-Discovery_FW_V1.1.0    #注：这个是官网直接下载的标准库，不同芯片
+</span><span style="color:#080;font-style:italic"># 	└──blank
+</span><span style="color:#080;font-style:italic"># 		├── Makefile
+</span><span style="color:#080;font-style:italic"># 		├── main.c
+</span><span style="color:#080;font-style:italic"># 		├── stm32_flash.ld
+</span><span style="color:#080;font-style:italic"># 		├── stm32f4xx_conf.h
+</span><span style="color:#080;font-style:italic"># 		└── system_stm32f4xx.c
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic"># Name of your project
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">PROJECT_NAME</span> <span style="color:#666">=</span> BLANK
+
+<span style="color:#080;font-style:italic"># Project root path
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">PROJECT_ROOT_PATH</span> <span style="color:#666">=</span> ..
+<span style="color:#b8860b">STM_STD_LIB_PATH</span> <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_ROOT_PATH<span style="color:#a2f;font-weight:bold">)</span>/STM32F4-Discovery_FW_V1.1.0
+
+<span style="color:#080;font-style:italic"># Third-party libraries should be add here
+</span><span style="color:#080;font-style:italic"># Example: TM_STM_LIB_PATH = $(PROJECT_ROOT_PATH)/TM_STM32F4xxLIBRARIES
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic"># STM header files path should be registered here
+</span><span style="color:#080;font-style:italic"># Standard libraries inc file path
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">STM_INC_PATH</span>  <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">$(</span>STM_STD_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>/Utitlties/STM32F4-Discovery
+<span style="color:#b8860b">STM_INC_PATH</span> <span style="color:#666">+=</span> <span style="color:#a2f;font-weight:bold">$(</span>STM_STD_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>/Libraries/CMSIS/Include
+<span style="color:#b8860b">STM_INC_PATH</span> <span style="color:#666">+=</span> <span style="color:#a2f;font-weight:bold">$(</span>STM_STD_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>/Libraries/CMSIS/ST/STM32F4xx/Include
+<span style="color:#b8860b">STM_INC_PATH</span> <span style="color:#666">+=</span> <span style="color:#a2f;font-weight:bold">$(</span>STM_STD_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>/Libraries/STM32F4xx_StdPeriph_Driver/inc
+<span style="color:#b8860b">STM_INC_PATH</span> <span style="color:#666">+=</span> .
+
+<span style="color:#080;font-style:italic"># TM libraries inc file path
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">STM_INC_PATH</span> <span style="color:#666">+=</span> <span style="color:#a2f;font-weight:bold">$(</span>TM_STM_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>
+
+<span style="color:#080;font-style:italic"># STM source files path should be registered here
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">STM_SRC_PATH</span>  <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">$(</span>STM_STD_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>/Libraries/STM32F4xx_StdPeriph_Driver/src
+<span style="color:#b8860b">STM_SRC_PATH</span> <span style="color:#666">+=</span> <span style="color:#a2f;font-weight:bold">$(</span>TM_STM_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>
+
+<span style="">vpath</span> %.c <span style="color:#a2f;font-weight:bold">$(</span>STM_SRC_PATH<span style="color:#a2f;font-weight:bold">)</span>
+
+<span style="color:#080;font-style:italic">#main source file
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">SRCS</span>          <span style="color:#666">=</span> main.c
+<span style="color:#b8860b">SRCS</span>         <span style="color:#666">+=</span> system_stm32f4xx.c
+<span style="color:#b8860b">SRCS</span>         <span style="color:#666">+=</span> <span style="color:#a2f;font-weight:bold">$(</span>STM_STD_LIB_PATH<span style="color:#a2f;font-weight:bold">)</span>/Libraries/CMSIS/ST/STM32F4xx/Source/Templates/TrueSTUDIO/startup_stm32f4xx.s
+
+<span style="color:#080;font-style:italic"># dependencies must be declared here
+</span><span style="color:#080;font-style:italic"># EXAMPLE     :   SRCS += stm32f4xx_gpio.c
+</span><span style="color:#080;font-style:italic"># ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+</span><span style="color:#080;font-style:italic"># =======================STD_LIB====================================
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_adc.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_can.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_crc.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_cryp_aes.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_cryp_des.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_cryp_tdes.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_cryp.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_dac.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_dbgmcu.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_dcmi.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_dma.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_exti.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_flash.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_fsmc.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_gpio.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_hash_md5.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_hash_sha1
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_hash.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_i2c.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_iwdg.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_pwr.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_rcc.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_rng.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_rtc.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_sdio.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_spi.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_syscfg.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_tim.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_usart.c
+</span><span style="color:#080;font-style:italic"># SRCS         += stm32f4xx_wwdg.c
+</span><span style="color:#080;font-style:italic"># ==================third-party-lib=================================
+</span><span style="color:#080;font-style:italic"># Example: SRCS += xxx.c
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic"># ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic">#########SHOULD NOT BE CHANGED UNLESS PROFESSIONAL###################
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic">#####################################################################
+</span><span style="color:#080;font-style:italic">#                       TOOLCHAINS CONFIG                           #
+</span><span style="color:#080;font-style:italic">#####################################################################
+</span><span style="color:#080;font-style:italic">#Toolchain has been exported
+</span><span style="color:#080;font-style:italic"># The tool we use
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">CC</span>      <span style="color:#666">=</span> arm-none-eabi-gcc
+<span style="color:#b8860b">OBJCOPY</span> <span style="color:#666">=</span> arm-none-eabi-objcopy
+<span style="color:#b8860b">GDB</span>     <span style="color:#666">=</span> arm-none-eabi-gdb
+
+<span style="color:#080;font-style:italic">## Preprocessor options
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic"># directories to be searched for header files
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">INCLUDE</span> <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">$(</span>addprefix -I,<span style="color:#a2f;font-weight:bold">$(</span>STM_INC_PATH<span style="color:#a2f;font-weight:bold">))</span>
+
+<span style="color:#080;font-style:italic"># #defines needed when working with the STM library
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">DEFS</span>    <span style="color:#666">=</span> -DUSE_STDPERIPH_DRIVER
+<span style="color:#080;font-style:italic"># if you use the following option, you must implement the function
+</span><span style="color:#080;font-style:italic">#    assert_failed(uint8_t* file, uint32_t line)
+</span><span style="color:#080;font-style:italic"># because it is conditionally used in the library
+</span><span style="color:#080;font-style:italic"># DEFS   += -DUSE_FULL_ASSERT
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#080;font-style:italic">## Compiler options
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">CFLAGS</span>  <span style="color:#666">=</span> -ggdb
+<span style="color:#080;font-style:italic"># please do not optimize anything because we are debugging
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">CFLAGS</span> <span style="color:#666">+=</span> -O0
+<span style="color:#b8860b">CFLAGS</span> <span style="color:#666">+=</span> -Wall -Wextra -Warray-bounds
+<span style="color:#b8860b">CFLAGS</span> <span style="color:#666">+=</span> -mlittle-endian -mthumb -mcpu<span style="color:#666">=</span>cortex-m4 -mthumb-interwork
+<span style="color:#b8860b">CFLAGS</span> <span style="color:#666">+=</span> -mfloat-abi<span style="color:#666">=</span>hard -mfpu<span style="color:#666">=</span>fpv4-sp-d16
+
+<span style="color:#080;font-style:italic">## Linker options
+</span><span style="color:#080;font-style:italic"># tell ld which linker file to use
+</span><span style="color:#080;font-style:italic"># (this file is in the current directory)
+</span><span style="color:#080;font-style:italic"></span><span style="color:#b8860b">LFLAGS</span>  <span style="color:#666">=</span> -Tstm32_flash.ld
+
+
+<span style="color:#080;font-style:italic">######################################################################
+</span><span style="color:#080;font-style:italic">#                         SETUP TARGETS                              #
+</span><span style="color:#080;font-style:italic">######################################################################
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#00a000">.PHONY</span><span style="color:#666">:</span> <span style="color:#a2f;font-weight:bold">$(</span><span style="color:#b8860b">PROJECT_NAME</span><span style="color:#a2f;font-weight:bold">)</span>
+<span style="color:#00a000">$(PROJECT_NAME)</span><span style="color:#666">:</span> <span style="color:#a2f;font-weight:bold">$(</span><span style="color:#b8860b">PROJECT_NAME</span><span style="color:#a2f;font-weight:bold">)</span>.elf
+
+<span style="color:#00a000">$(PROJECT_NAME).elf</span><span style="color:#666">:</span> <span style="color:#a2f;font-weight:bold">$(</span><span style="color:#b8860b">SRCS</span><span style="color:#a2f;font-weight:bold">)</span>
+	<span style="color:#a2f;font-weight:bold">$(</span>CC<span style="color:#a2f;font-weight:bold">)</span> <span style="color:#a2f;font-weight:bold">$(</span>INCLUDE<span style="color:#a2f;font-weight:bold">)</span> <span style="color:#a2f;font-weight:bold">$(</span>DEFS<span style="color:#a2f;font-weight:bold">)</span> <span style="color:#a2f;font-weight:bold">$(</span>CFLAGS<span style="color:#a2f;font-weight:bold">)</span> <span style="color:#a2f;font-weight:bold">$(</span>LFLAGS<span style="color:#a2f;font-weight:bold">)</span> $^ -o <span style="color:#b8860b">$@</span>
+	<span style="color:#a2f;font-weight:bold">$(</span>OBJCOPY<span style="color:#a2f;font-weight:bold">)</span> -O ihex <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.elf   <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.hex
+	<span style="color:#a2f;font-weight:bold">$(</span>OBJCOPY<span style="color:#a2f;font-weight:bold">)</span> -O binary <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.elf <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.bin
+
+<span style="color:#00a000">.PHONY</span><span style="color:#666">:</span> clean
+<span style="color:#00a000">clean</span><span style="color:#666">:</span>
+	rm -f *.o <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.elf <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.hex <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.bin
+
+<span style="color:#080;font-style:italic"># Flash the STM32F4
+</span><span style="color:#080;font-style:italic"></span><span style="color:#00a000">flash</span><span style="color:#666">:</span>
+	st-flash write <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.bin 0x8000000
+
+<span style="color:#00a000">.PHONY</span><span style="color:#666">:</span> debug
+<span style="color:#00a000">debug</span><span style="color:#666">:</span>
+<span style="color:#080;font-style:italic"># before you start gdb, you must start st-util
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#a2f;font-weight:bold">$(</span>GDB<span style="color:#a2f;font-weight:bold">)</span> <span style="color:#a2f;font-weight:bold">$(</span>PROJECT_NAME<span style="color:#a2f;font-weight:bold">)</span>.elf
+</code></pre></div>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

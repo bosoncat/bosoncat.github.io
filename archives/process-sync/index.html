@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>进程同步的几个小问题 | /dev/urandom</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">进程同步的几个小问题</span></h1>
+
+<h2 class="date">2018/10/19</h2>
+</div>
+
+<main>
+
+
+<h3 id="introduction">Introduction</h3>
+
+<p>国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 <code>(semaphore)</code>，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)，所有代码可以在 <a href="https://github.com/Higuoxing/blog-source/tree/master/process-sync">Github</a> 找到</p>
+
+<h3 id="生产者-消费者模型-producer-consumer-problem">生产者-消费者模型 (Producer–Consumer Problem)</h3>
+
+<p>因为写这个东西的时候我没有带课本&hellip; 所以信号量的命名都是按照 <a href="https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem">Wikipedia</a> 上面来的，具体的可以自行转换。这里给出的是信号量解法，也就是利用最基本的 <code>PV 操作</code> 来完成。为了给出简单、直观的解法，我做了一点简化，比如：一些用来计数的信号量，我用 buffer 的大小来表示当前的计数值</p>
+
+<h4 id="信号量定义">信号量定义</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">type</span> semaphore <span style="color:#a2f;font-weight:bold">chan</span> <span style="color:#0b0;font-weight:bold">int</span>    <span style="color:#080;font-style:italic">// 定义信号量类型为 chan int
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">const</span> maxSize = <span style="color:#666">3</span>          <span style="color:#080;font-style:italic">// 共享区的上限
+</span><span style="color:#080;font-style:italic"></span>
+<span style="color:#a2f;font-weight:bold">var</span> (
+	emptyCount = <span style="color:#a2f">make</span>(semaphore, maxSize) <span style="color:#080;font-style:italic">// 空闲共享区的大小
+</span><span style="color:#080;font-style:italic"></span>	fullCount  = <span style="color:#a2f">make</span>(semaphore, maxSize) <span style="color:#080;font-style:italic">// 已使用的共享区大小
+</span><span style="color:#080;font-style:italic"></span>	useQueue   = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)       <span style="color:#080;font-style:italic">// mutex 只分配一个 byte 大小来表示 bool，满代表 true，空代表 false
+</span><span style="color:#080;font-style:italic"></span>	items      = <span style="color:#a2f">make</span>(semaphore, maxSize) <span style="color:#080;font-style:italic">// 生产者生产的产品
+</span><span style="color:#080;font-style:italic"></span>)</code></pre></div>
+<h4 id="pv-操作">PV 操作</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#080;font-style:italic">// P 操作，消耗一个资源
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> (sema <span style="color:#666">*</span>semaphore) <span style="color:#00a000">P</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		<span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f">len</span>(<span style="color:#666">*</span>sema) &gt; <span style="color:#666">0</span> {
+			<span style="color:#666">&lt;-</span> <span style="color:#666">*</span>sema    <span style="color:#080;font-style:italic">// 消耗一个资源
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#a2f;font-weight:bold">break</span>
+		}
+		runtime.<span style="color:#00a000">Gosched</span>()   <span style="color:#080;font-style:italic">// 把控制权移出
+</span><span style="color:#080;font-style:italic"></span>	}
+}
+
+<span style="color:#080;font-style:italic">// V 操作，释放一个资源
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> (sema <span style="color:#666">*</span>semaphore) <span style="color:#00a000">V</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		<span style="color:#a2f;font-weight:bold">if</span> <span style="color:#a2f">len</span>(<span style="color:#666">*</span>sema) &lt; <span style="color:#a2f">cap</span>(<span style="color:#666">*</span>sema) {
+			<span style="color:#666">*</span>sema <span style="color:#666">&lt;-</span> <span style="color:#666">1</span>  <span style="color:#080;font-style:italic">// 释放一个资源
+</span><span style="color:#080;font-style:italic"></span>			<span style="color:#a2f;font-weight:bold">break</span>
+		}
+		runtime.<span style="color:#00a000">Gosched</span>()   <span style="color:#080;font-style:italic">// 把控制权移出
+</span><span style="color:#080;font-style:italic"></span>	}
+}</code></pre></div>
+<h4 id="生产者和消费者">生产者和消费者</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">producer</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		emptyCount.<span style="color:#00a000">P</span>()  <span style="color:#080;font-style:italic">// 消耗一个空闲区空的信号
+</span><span style="color:#080;font-style:italic"></span>		useQueue.<span style="color:#00a000">P</span>()    <span style="color:#080;font-style:italic">// 上锁
+</span><span style="color:#080;font-style:italic"></span>		items.<span style="color:#00a000">V</span>()       <span style="color:#080;font-style:italic">// 释放一个产品
+</span><span style="color:#080;font-style:italic"></span>		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;[Producer] Produce 1. Now we have %v items.\n&#34;</span>, <span style="color:#a2f">len</span>(items))
+		useQueue.<span style="color:#00a000">V</span>()    <span style="color:#080;font-style:italic">// 开锁
+</span><span style="color:#080;font-style:italic"></span>		fullCount.<span style="color:#00a000">V</span>()   <span style="color:#080;font-style:italic">// 释放一个空闲区满的信号
+</span><span style="color:#080;font-style:italic"></span>	}
+}
+
+<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">consumer</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		fullCount.<span style="color:#00a000">P</span>()  <span style="color:#080;font-style:italic">// 消耗空闲区满的信号
+</span><span style="color:#080;font-style:italic"></span>		useQueue.<span style="color:#00a000">P</span>()   <span style="color:#080;font-style:italic">// 上锁
+</span><span style="color:#080;font-style:italic"></span>		items.<span style="color:#00a000">P</span>()      <span style="color:#080;font-style:italic">// 消耗一个产品
+</span><span style="color:#080;font-style:italic"></span>		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;[Consumer] Consume 1. Now we have %v items.\n&#34;</span>, <span style="color:#a2f">len</span>(items))
+		useQueue.<span style="color:#00a000">V</span>()   <span style="color:#080;font-style:italic">// 开锁
+</span><span style="color:#080;font-style:italic"></span>		emptyCount.<span style="color:#00a000">V</span>() <span style="color:#080;font-style:italic">// 释放一个空闲区空的信号
+</span><span style="color:#080;font-style:italic"></span>	}
+}</code></pre></div>
+<h4 id="初始化">初始化</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">init</span>() {
+	<span style="color:#080;font-style:italic">// 初始化空闲区空的信号
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#a2f;font-weight:bold">for</span> i <span style="color:#666">:=</span> <span style="color:#666">0</span>; i &lt; maxSize; i <span style="color:#666">++</span> {
+		emptyCount <span style="color:#666">&lt;-</span> <span style="color:#666">1</span>
+	}
+	<span style="color:#080;font-style:italic">// 初始化 mutex
+</span><span style="color:#080;font-style:italic"></span>	useQueue <span style="color:#666">&lt;-</span> <span style="color:#666">1</span>
+}
+
+<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">main</span>() {
+	<span style="color:#080;font-style:italic">// 然后 producer 和 consumer 分别跑在两个 goroutine 上
+</span><span style="color:#080;font-style:italic"></span>	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">producer</span>()
+	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">consumer</span>()
+	time.<span style="color:#00a000">Sleep</span>(time.<span style="color:#00a000">Duration</span>(<span style="color:#666">5</span>)<span style="color:#666">*</span>time.Millisecond)
+	<span style="color:#a2f;font-weight:bold">return</span>
+}</code></pre></div>
+<h4 id="打印结果">打印结果</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ./producer-consumer
+<span style="color:#666">[</span>Producer<span style="color:#666">]</span> Produce <span style="color:#666">1</span>. Now we have <span style="color:#666">1</span> items.
+<span style="color:#666">[</span>Producer<span style="color:#666">]</span> Produce <span style="color:#666">1</span>. Now we have <span style="color:#666">2</span> items.
+<span style="color:#666">[</span>Consumer<span style="color:#666">]</span> Consume <span style="color:#666">1</span>. Now we have <span style="color:#666">1</span> items.
+<span style="color:#666">[</span>Consumer<span style="color:#666">]</span> Consume <span style="color:#666">1</span>. Now we have <span style="color:#666">0</span> items.
+<span style="color:#666">[</span>Producer<span style="color:#666">]</span> Produce <span style="color:#666">1</span>. Now we have <span style="color:#666">1</span> items.
+<span style="color:#666">[</span>Consumer<span style="color:#666">]</span> Consume <span style="color:#666">1</span>. Now we have <span style="color:#666">0</span> items.
+<span style="color:#666">[</span>Producer<span style="color:#666">]</span> Produce <span style="color:#666">1</span>. Now we have <span style="color:#666">1</span> items.
+<span style="color:#666">[</span>Producer<span style="color:#666">]</span> Produce <span style="color:#666">1</span>. Now we have <span style="color:#666">2</span> items.
+<span style="color:#666">[</span>Producer<span style="color:#666">]</span> Produce <span style="color:#666">1</span>. Now we have <span style="color:#666">3</span> items.
+...</code></pre></div>
+<h3 id="哲学家进餐问题-dining-philosophers-problem">哲学家进餐问题 (Dining Philosophers Problem)</h3>
+
+<p>关于问题描述可以参照操作系统的书籍或者 <a href="https://en.wikipedia.org/wiki/Dining_philosophers_problem">Wikipedia</a>，关于更详细的解析可以看<a href="https://pages.mtu.edu/~shene/NSF-3/e-Book/MUTEX/TM-example-philos-1.html">这里</a>，这里我们采取只有哲学家两边的筷子都可用时才允许他进餐的策略</p>
+
+<h4 id="信号量定义-1">信号量定义</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">var</span> (
+	chopstics = <span style="color:#a2f">make</span>([]semaphore, <span style="color:#666">5</span>)  <span style="color:#080;font-style:italic">// 哲学家们的筷子
+</span><span style="color:#080;font-style:italic"></span>	mutex   = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)      <span style="color:#080;font-style:italic">// 互斥锁
+</span><span style="color:#080;font-style:italic"></span>)</code></pre></div>
+<h4 id="进餐">进餐</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">dining</span>(i <span style="color:#0b0;font-weight:bold">int</span>) {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		mutex.<span style="color:#00a000">P</span>()                 <span style="color:#080;font-style:italic">// 上锁
+</span><span style="color:#080;font-style:italic"></span>		chopstics[i].<span style="color:#00a000">P</span>()          <span style="color:#080;font-style:italic">// 取筷子
+</span><span style="color:#080;font-style:italic"></span>		chopstics[(i<span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">%</span><span style="color:#666">5</span>].<span style="color:#00a000">P</span>()
+		mutex.<span style="color:#00a000">V</span>()                 <span style="color:#080;font-style:italic">// 开锁
+</span><span style="color:#080;font-style:italic"></span>		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;Philosopher %v is eating\n&#34;</span>, i<span style="color:#666">+</span><span style="color:#666">1</span>)
+		chopstics[i].<span style="color:#00a000">V</span>()          <span style="color:#080;font-style:italic">// 释放筷子
+</span><span style="color:#080;font-style:italic"></span>		chopstics[(i<span style="color:#666">+</span><span style="color:#666">1</span>)<span style="color:#666">%</span><span style="color:#666">5</span>].<span style="color:#00a000">V</span>()
+		fmt.<span style="color:#00a000">Printf</span>(<span style="color:#b44">&#34;Philosopher %v is thinking\n&#34;</span>, i<span style="color:#666">+</span><span style="color:#666">1</span>) <span style="color:#080;font-style:italic">// 思考
+</span><span style="color:#080;font-style:italic"></span>	}
+}</code></pre></div>
+<h4 id="初始化-1">初始化</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">init</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> i <span style="color:#666">:=</span> <span style="color:#666">0</span>; i &lt; <span style="color:#666">5</span>; i <span style="color:#666">++</span> {
+		chopstics[i] = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)
+		chopstics[i].<span style="color:#00a000">V</span>()          <span style="color:#080;font-style:italic">// 释放筷子
+</span><span style="color:#080;font-style:italic"></span>	}
+	mutex.<span style="color:#00a000">V</span>()                         <span style="color:#080;font-style:italic">// 释放互斥锁
+</span><span style="color:#080;font-style:italic"></span>}
+
+<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">main</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> i <span style="color:#666">:=</span> <span style="color:#666">0</span>; i &lt; <span style="color:#666">5</span>; i <span style="color:#666">++</span> {
+		<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">dining</span>(i)
+	}
+	time.<span style="color:#00a000">Sleep</span>(time.<span style="color:#00a000">Duration</span>(<span style="color:#666">5</span>) <span style="color:#666">*</span> time.Millisecond)
+	<span style="color:#a2f;font-weight:bold">return</span>
+}</code></pre></div>
+<h4 id="打印结果-1">打印结果</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ./dining-philosophers
+Philosopher <span style="color:#666">4</span> is eating
+Philosopher <span style="color:#666">4</span> is thinking
+Philosopher <span style="color:#666">2</span> is eating
+Philosopher <span style="color:#666">2</span> is thinking
+Philosopher <span style="color:#666">2</span> is eating
+Philosopher <span style="color:#666">2</span> is thinking
+Philosopher <span style="color:#666">5</span> is eating
+Philosopher <span style="color:#666">5</span> is thinking
+...</code></pre></div>
+<h3 id="吸烟者问题-cigarette-smoker-problem">吸烟者问题 (Cigarette-Smoker problem)</h3>
+
+<p>也是课本上的几个小问题之一，问题描述与解决方案可以参考<a href="http://www.cs.umd.edu/~hollings/cs412/s96/synch/smokers.html">这里</a></p>
+
+<h4 id="信号量定义-2">信号量定义</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">var</span> (
+	smoker_match = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)   <span style="color:#080;font-style:italic">// 烟草和纸的信号量
+</span><span style="color:#080;font-style:italic"></span>	smoker_paper = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)   <span style="color:#080;font-style:italic">// 火柴和烟草的信号量
+</span><span style="color:#080;font-style:italic"></span>	smoker_tobacco = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>) <span style="color:#080;font-style:italic">// 火柴和纸的信号量
+</span><span style="color:#080;font-style:italic"></span>	smoking_done = <span style="color:#a2f">make</span>(semaphore, <span style="color:#666">1</span>)   <span style="color:#080;font-style:italic">// 吸完烟的信号量
+</span><span style="color:#080;font-style:italic"></span>)</code></pre></div>
+<h4 id="供应者和吸烟者进程">供应者和吸烟者进程</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">provider</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		random <span style="color:#666">:=</span> rand.<span style="color:#00a000">Intn</span>(<span style="color:#666">3</span>)
+		<span style="color:#a2f;font-weight:bold">switch</span> (random) {
+		<span style="color:#a2f;font-weight:bold">case</span> <span style="color:#666">0</span>:
+			smoker_match.<span style="color:#00a000">V</span>()    <span style="color:#080;font-style:italic">// 唤醒拥有火柴的吸烟者进程
+</span><span style="color:#080;font-style:italic"></span>		<span style="color:#a2f;font-weight:bold">case</span> <span style="color:#666">1</span>:
+			smoker_paper.<span style="color:#00a000">V</span>()    <span style="color:#080;font-style:italic">// 唤醒拥有卷烟纸的吸烟者进程
+</span><span style="color:#080;font-style:italic"></span>		<span style="color:#a2f;font-weight:bold">case</span> <span style="color:#666">2</span>:
+			smoker_tobacco.<span style="color:#00a000">V</span>()  <span style="color:#080;font-style:italic">// 唤醒拥有烟草的吸烟者进程
+</span><span style="color:#080;font-style:italic"></span>		}
+		smoking_done.<span style="color:#00a000">P</span>()            <span style="color:#080;font-style:italic">// 等待吸烟者吸完继续发放材料					
+</span><span style="color:#080;font-style:italic"></span>	}
+}
+
+<span style="color:#080;font-style:italic">// 拥有火柴的吸烟者进程，其余类似不予赘述
+</span><span style="color:#080;font-style:italic"></span><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">smoker_0</span>() {
+	<span style="color:#a2f;font-weight:bold">for</span> {
+		smoker_match.<span style="color:#00a000">P</span>()
+		fmt.<span style="color:#00a000">Println</span>(<span style="color:#b44">&#34;Smoker who has match is smoking&#34;</span>)
+		smoking_done.<span style="color:#00a000">V</span>()
+	}
+}</code></pre></div>
+<h4 id="初始化变量">初始化变量</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">init</span>() {
+	smoking_done.<span style="color:#00a000">V</span>()
+
+}
+
+<span style="color:#a2f;font-weight:bold">func</span> <span style="color:#00a000">main</span>() {
+	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">provider</span>()
+	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">smoker_0</span>()
+	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">smoker_1</span>()
+	<span style="color:#a2f;font-weight:bold">go</span> <span style="color:#00a000">smoker_2</span>()
+	time.<span style="color:#00a000">Sleep</span>(time.<span style="color:#00a000">Duration</span>(<span style="color:#666">5</span>) <span style="color:#666">*</span> time.Millisecond)
+	<span style="color:#a2f;font-weight:bold">return</span>
+}</code></pre></div>
+<h4 id="打印结果-2">打印结果</h4>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ ./cigarette-smoker
+Smoker who has tobacco is smoking
+Smoker who has tobacco is smoking
+Smoker who has paper is smoking
+Smoker who has match is smoking
+Smoker who has match is smoking
+...</code></pre></div>
+<h3 id="conclusion">Conclusion</h3>
+
+<p>以上的代码均以好玩，简单为目的。Go 真的很有趣，可以像上面那样用类似伪码的形式把进程同步的小问题解决掉，再加上它的运行速度 (尽管 1.3 自举后慢了一些，但还是很快)，我很喜欢。具体 <code>goroutine</code> 以及 <code>go channel</code> 的用法和原理可以到 <a href="https://golang.org">golang.org</a> 参考。</p>
+
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2018 <a href="https://higuoxing.com/">Higuoxing</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Home on /dev/urandom</title>
+    <link>/</link>
+    <description>Recent content in Home on /dev/urandom</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 19 Oct 2018 15:51:05 +0800</lastBuildDate>
+    
+	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>进程同步的几个小问题</title>
+      <link>/archives/process-sync/</link>
+      <pubDate>Fri, 19 Oct 2018 15:51:05 +0800</pubDate>
+      
+      <guid>/archives/process-sync/</guid>
+      <description>Introduction 国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 (semaphore)，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)，所有代码可以在 Github 找到
+生产者-消费者模型 (Producer–Consumer Problem) 因为写这个东西的时候我没有带课本&amp;hellip; 所以信号量的命名都是按照 Wikipedia 上面来的，具体的可以自行转换。这里给出的是信号量解法，也就是利用最基本的 PV 操作 来完成。为了给出简单、直观的解法，我做了一点简化，比如：一些用来计数的信号量，我用 buffer 的大小来表示当前的计数值
+信号量定义 type semaphore chan int // 定义信号量类型为 chan int const maxSize = 3 // 共享区的上限  var ( emptyCount = make(semaphore, maxSize) // 空闲共享区的大小 	fullCount = make(semaphore, maxSize) // 已使用的共享区大小 	useQueue = make(semaphore, 1) // mutex 只分配一个 byte 大小来表示 bool，满代表 true，空代表 false 	items = make(semaphore, maxSize) // 生产者生产的产品 ) PV 操作 // P 操作，消耗一个资源 func (sema *semaphore) P() { for { if len(*sema) &amp;gt; 0 { &amp;lt;- *sema // 消耗一个资源 	break } runtime.</description>
+    </item>
+    
+    <item>
+      <title>LLVM Passes</title>
+      <link>/archives/llvm-passes/</link>
+      <pubDate>Sat, 22 Sep 2018 19:49:49 +0800</pubDate>
+      
+      <guid>/archives/llvm-passes/</guid>
+      <description>Introduction One of the most important parts of a compiler is the optimization system. In LLVM, these works are done by LLVM Pass Framework. LLVM Passes perform various transforms/optimizations over functions, modules and so on. Besides, owing to its perfect modular design, passes could be combined and scheduled to construct successful compilers, like GHC, Swift etc. If you are interested in the ideas behind the LLVM compiler infrastructure, I recommend you going through this article LLVM - The Architecture of Open Source Applications by Chris Lattner.</description>
+    </item>
+    
+    <item>
+      <title>Value Categories in C&#43;&#43;</title>
+      <link>/archives/value-categories-in-cpp/</link>
+      <pubDate>Sun, 16 Sep 2018 11:15:00 +0800</pubDate>
+      
+      <guid>/archives/value-categories-in-cpp/</guid>
+      <description>Introduction In C++11, with the introducing of move semantics, C++ extended its value categories. Hence, it’s possibly not a good idea to roughly identify expression’s value categories to be lvalue and rvalue. This post is to dump some notes about “Value Category” of expressions in C++, together with some interesting history. Just some basic knowledge about C++ is required.
+Expressions An expression is a sequence of operators and their operands, that specifies a computation.</description>
+    </item>
+    
+    <item>
+      <title>Vivado HLS 初体验</title>
+      <link>/archives/first-scratch-on-vivado-hls/</link>
+      <pubDate>Tue, 24 Jul 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/first-scratch-on-vivado-hls/</guid>
+      <description>其实很早就知道 Vivado HLS 这个东西了，但是身边人没有人使用它，只知道它是一个可以把 C/C++ 转化成 HDL 的一个软件。直到这个暑假，有幸在上海的 LLVM 社区中国的线下聚会上，有在北京 Xilinx 工作的工程师分享了一些有关 HLS 的底层实现方面的介绍，也很有趣。而刚好在前段时间的划水实习中，有要用到一丢丢的 HLS，所以记录一下使用心得。下面要使用的样例是来自 pp4fpgas 中的 Huffman Encoding 章节。源码可以到前面给出的 Github 链接找到。再次推荐一下这本书，从高层到底层的讲解都十分的棒，相见恨晚！
+Start Up 找到仓库中的 examples 文件夹后，里面稍稍显得有点乱，找到里面的
+examples ├── huffman_canonize_tree_alternate.cpp (这个实际是不需要的) ├── huffman_canonize_tree.cpp ├── huffman_compute_bit_length.cpp ├── huffman_create_codeword.cpp ├── huffman_create_tree.cpp ├── huffman_encoding.cpp (顶层文件) ├── huffman_encoding.tcl (创建工程的脚本，看一下就知道它做了什么) ├── huffman_encoding_test2.cpp ├── huffman_encoding_test.cpp ├── huffman_filter.cpp ├── huffman.h (一些模块的参数定义) ├── huffman.random256.golden (仿真要用到的参考值) ├── huffman.random256.txt (仿真要用到的输入值) ├── huffman_sort.cpp ├── huffman_truncate_tree.cpp 为了让我们的工程看起来简洁一些，把它们拷贝出来，单独放到一个工程文件夹中吧！像这样
+axi-huffman-encoding-core ├── huffman_encoding.tcl ├── src (编译 IP core 需要的源文件) │ ├── huffman_canonize_tree.</description>
+    </item>
+    
+    <item>
+      <title>更好的管理 Vivado 项目</title>
+      <link>/archives/manage-vivado-projects/</link>
+      <pubDate>Tue, 10 Jul 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/manage-vivado-projects/</guid>
+      <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>迁移到 [NeoVim]</title>
+      <link>/archives/move-to-vim/</link>
+      <pubDate>Sat, 23 Jun 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/move-to-vim/</guid>
+      <description>很早就想尝试一下 NeoVim 了，因为每次配置 Vim 有点太烦了，而且这次直接换用了 Vim-Plug 的包管理，比起原来配置起来更方便了，而且更快了。初次尝试还是不错的，尤其是 NeoVim 有一个 :terminal 的命令，可以调出一个 Buffer 来容纳一个 Terminal Emulator ，这样调试程序就很方便了。但是在使用过程有个小小的不舒服的地方就是，当输入 exit 退出当前 Terminal 的时候，整个 NeoVim 都会退出，Google 了之后貌似是 Terminal 的Buffer 和 普通的 Buffer 不太一样，所以导致了这个奇怪的问题。
+Solution 一个解决方法是绑定一个打开 Terminal 的快捷键以及从 Terminal Mode 退出到 Normal Mode 的快捷键，这样有两个好处，一是能够利用自己舒服的键位打开命令行，二是直接退出到 Normal Mode 之后就可以按照正常的键位(&amp;lt;ESC&amp;gt; 退出 Terminal Mode，&amp;lt;\&amp;gt;o 打开 Terminal)操作了，不是很麻烦。而且这样就不需要额外的安装使用 Terminal 的插件了，调试起来程序也很方便了！
+&amp;#34; Terminal Config { tnoremap &amp;lt;Esc&amp;gt; &amp;lt;C-\&amp;gt;&amp;lt;C-n&amp;gt; nnoremap &amp;lt;leader&amp;gt;o :below 10sp term://$SHELL&amp;lt;cr&amp;gt;i&amp;#34; } 其它方面的东西可以在 NeoVim 内输入 :help terminal-emulator 进行查看。我的 NeoVim 配置在这里</description>
+    </item>
+    
+    <item>
+      <title>「node-ngspice」我的ngspice配置</title>
+      <link>/archives/node-ngspice/</link>
+      <pubDate>Tue, 24 Apr 2018 15:45:21 +0000</pubDate>
+      
+      <guid>/archives/node-ngspice/</guid>
+      <description>&lt;p&gt;这是一个最近花了整整一天写的很草率的项目&amp;hellip;不过肯定会完善的，至于接下来使用什么前端框架，打算敲定&lt;code&gt;vue.js&lt;/code&gt;了&amp;hellip;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>正则表达式引擎</title>
+      <link>/archives/hregex/</link>
+      <pubDate>Fri, 09 Mar 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/hregex/</guid>
+      <description>&lt;p&gt;上学期学了一些编译器前端的知识，接触到了&lt;code&gt;Flex&lt;/code&gt;，&lt;code&gt;Yacc&lt;/code&gt;这类的工具，同时也对正则表达式引擎有了很大的兴趣，于是总想着自己实现一个简单的正则表达式引擎，在这里是对这部分知识的一个总结，因为网上有很多资料总感觉缺头少尾，大多数人第一次读龙书[1]也是有些Hold不住，所以，这里拿一个&lt;code&gt;入门级&lt;/code&gt;的正则引擎作为例子，总结一下这部分知识&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>子集构造法(Subset construction)</title>
+      <link>/archives/subset-construction/</link>
+      <pubDate>Mon, 26 Feb 2018 14:56:15 +0000</pubDate>
+      
+      <guid>/archives/subset-construction/</guid>
+      <description>&lt;p&gt;子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了&lt;a href=&#34;https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3&#34;&gt;Gist&lt;/a&gt;，项目地址: &lt;a href=&#34;https://github.com/higuoxing/hregex&#34;&gt;hregex&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Haskell中的惰性求值(Lazy evaluation)</title>
+      <link>/archives/lazy-evaluation-in-haskell/</link>
+      <pubDate>Sat, 03 Feb 2018 00:08:38 +0000</pubDate>
+      
+      <guid>/archives/lazy-evaluation-in-haskell/</guid>
+      <description>&lt;p&gt;本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>OSX下编译STM32程序</title>
+      <link>/archives/build-stm32-program-on-macos/</link>
+      <pubDate>Sat, 09 Sep 2017 01:25:01 +0000</pubDate>
+      
+      <guid>/archives/build-stm32-program-on-macos/</guid>
+      <description>&lt;p&gt;大二的这个暑假，被同学拉着去参加了电设，由于比赛用到了&lt;code&gt;STM32&lt;/code&gt;来作为处理器，所以就需要折腾一下&lt;code&gt;STM32&lt;/code&gt;。由于我算半个果粉，所以免不了要去折(zhuang)腾(B)。大家都知道32这类的单片机的开发流程都是利用&lt;code&gt;C&lt;/code&gt;或&lt;code&gt;C++&lt;/code&gt;写成代码后，利用工具编译成32能够识别的二进制或16进制码写到32的&lt;code&gt;Flash&lt;/code&gt;中。那么&lt;code&gt;windows&lt;/code&gt;下能完成的流程，&lt;code&gt;OS X&lt;/code&gt;下也一定能完成,嘻嘻。简述一下我们所需要的工具或者软件: -)&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
