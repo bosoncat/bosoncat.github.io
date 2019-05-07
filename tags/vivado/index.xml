@@ -29,8 +29,7 @@ axi-huffman-encoding-core ├── huffman_encoding.tcl ├── src (编译 I
       <pubDate>Tue, 10 Jul 2018 15:16:46 +0000</pubDate>
       
       <guid>/archives/manage-vivado-projects/</guid>
-      <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西
-&lt;/p&gt;</description>
+      <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西&lt;/p&gt;</description>
     </item>
     
   </channel>

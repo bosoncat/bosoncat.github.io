@@ -190,9 +190,10 @@ string a1 <span style="color:#666">=</span> std<span style="color:#666">::</span
 <span style="color:#080;font-style:italic">/* ++ a or -- a are lvalues, because a will immediately increase/decrease by 1, and we may use the value of a in the context later. */</span>
 <span style="color:#b44">&#34;hello&#34;</span>;
 <span style="color:#080;font-style:italic">/* Yes, literal string is a lvalue, because it cannot be moved from, and it is array type, two strings &#34;hello&#34;, &#34;hello&#34; may refer to two different memory area */</span>
-</code></pre></div></li>
-
-<li><p><em>prvalue</em> &ndash; “do not have identity”, “can be moved from”. an expression whose evaluation either computes the value of the operand of an operator, or initializes an object or a bit-field.</p>
+</code></pre></div>
+<ul>
+<li><em>prvalue</em> &ndash; “do not have identity”, “can be moved from”. an expression whose evaluation either computes the value of the operand of an operator, or initializes an object or a bit-field.</li>
+</ul>
 
 <p>e.g.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">a <span style="color:#666">+</span> b;
@@ -208,11 +209,10 @@ string a1 <span style="color:#666">=</span> std<span style="color:#666">::</span
 <p>e.g.</p>
 <div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">std<span style="color:#666">::</span>move(x);
 <span style="color:#080;font-style:italic">/* will be expired later */</span>
-</code></pre></div></li>
-
-<li><p><em>glvalue</em> &ndash; “has identity”. an expression whose evaluation determines the identity of an object, bit-field, or function.</p></li>
-
-<li><p><em>rvalue</em> &ndash; “can be moved from”. Could appear on the righ-hand side of an assignment expression. So-called, historically</p></li>
+</code></pre></div>
+<ul>
+<li><em>glvalue</em> &ndash; “has identity”. an expression whose evaluation determines the identity of an object, bit-field, or function.</li>
+<li><em>rvalue</em> &ndash; “can be moved from”. Could appear on the righ-hand side of an assignment expression. So-called, historically</li>
 </ul>
 
 <h3 id="conclusion">Conclusion</h3>
@@ -226,6 +226,7 @@ string a1 <span style="color:#666">=</span> std<span style="color:#666">::</span
 <li><a href="http://www.stroustrup.com/terminology.pdf">&ldquo;New&rdquo; Value Terminology</a></li>
 <li><a href="https://www.ibm.com/developerworks/community/blogs/5894415f-be62-4bc0-81c5-3956e82276f3/entry/RVO_V_S_std_move?lang=en">RVO V.S. std::move</a></li>
 <li><a href="https://en.cppreference.com/w/cpp/language/value_category">Cpp reference - Value Category</a></li>
+</ul></li>
 </ul>
 
 </main>

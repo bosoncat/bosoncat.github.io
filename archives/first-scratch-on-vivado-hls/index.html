@@ -121,7 +121,7 @@
 <span style="color:#080">#pragma HLS INTERFACE s_axilite port=symbol_histogram
 </span><span style="color:#080">#pragma HLS INTERFACE s_axilite port=encoding
 </span><span style="color:#080">#pragma HLS INTERFACE s_axilite port=num_nonzero_symbols
-</span><span style="color:#080"></span></code></pre></div>
+</span></code></pre></div>
 <p>由于 Huffman 编码本身是为了无损压缩的，所以对存储空间的占用也比较苛刻，很多情况下，综合出来的存储器往往是每个地址对应两个甚至更多个数据单元(虽然这样并没什么，只是增加了一丢丢计算地址的难度)，为了使后面工作简化一些以及简单起见，我们修改一些头文件里的参数。打开 <code>huffman.h</code> 把 <code>const static int SYMBOL_BITS = 10;</code> 修改为 <code>const static int SYMBOL_BITS = 32;</code> 这样生成的 IP 中，一个地址只对应一个数据，测试时候会方便一些，在对存储要求较高的时候可以按照源代码给的 <code>log2(字符集大小)</code> 进行计算。现在重新编译我们的项目即可。</p>
 
 <h3 id="block-design">Block Design</h3>
