@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Vim on /dev/urandom</title>
+    <title>Vim on Somewhere</title>
     <link>/tags/vim/</link>
-    <description>Recent content in Vim on /dev/urandom</description>
+    <description>Recent content in Vim on Somewhere</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Jun 2018 15:16:46 +0000</lastBuildDate>
