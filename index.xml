@@ -23,25 +23,6 @@
     </item>
     
     <item>
-      <title>LLVM Passes</title>
-      <link>/archives/llvm-passes/</link>
-      <pubDate>Sat, 22 Sep 2018 19:49:49 +0800</pubDate>
-      
-      <guid>/archives/llvm-passes/</guid>
-      <description>Introduction One of the most important parts of a compiler is the optimization system. In LLVM, these works are done by LLVM Pass Framework. LLVM Passes perform various transforms/optimizations over functions, modules and so on. Besides, owing to its perfect modular design, passes could be combined and scheduled to construct successful compilers, like GHC, Swift etc. If you are interested in the ideas behind the LLVM compiler infrastructure, I recommend you going through this article LLVM - The Architecture of Open Source Applications by Chris Lattner.</description>
-    </item>
-    
-    <item>
-      <title>Value Categories in C&#43;&#43;</title>
-      <link>/archives/value-categories-in-cpp/</link>
-      <pubDate>Sun, 16 Sep 2018 11:15:00 +0800</pubDate>
-      
-      <guid>/archives/value-categories-in-cpp/</guid>
-      <description>Introduction In C++11, with the introducing of move semantics, C++ extended its value categories. Hence, it’s possibly not a good idea to roughly identify expression’s value categories to be lvalue and rvalue. This post is to dump some notes about “Value Category” of expressions in C++, together with some interesting history. Just some basic knowledge about C++ is required.
-Expressions An expression is a sequence of operators and their operands, that specifies a computation.</description>
-    </item>
-    
-    <item>
       <title>Vivado HLS 初体验</title>
       <link>/archives/first-scratch-on-vivado-hls/</link>
       <pubDate>Tue, 24 Jul 2018 15:16:46 +0000</pubDate>
@@ -98,15 +79,6 @@ Solution 一个解决方法是绑定一个打开 Terminal 的快捷键以及从 
       
       <guid>/archives/subset-construction/</guid>
       <description>&lt;p&gt;子集构造法的一个Haskell实现，源代码虽不算长，但是我不喜欢长篇大论的贴代码，所以还是把自动机这一部分放到了&lt;a href=&#34;https://gist.github.com/Higuoxing/1fc42bac7291136bdb5c60eb330466b3&#34;&gt;Gist&lt;/a&gt;，项目地址: &lt;a href=&#34;https://github.com/higuoxing/hregex&#34;&gt;hregex&lt;/a&gt;&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Haskell中的惰性求值(Lazy evaluation)</title>
-      <link>/archives/lazy-evaluation-in-haskell/</link>
-      <pubDate>Sat, 03 Feb 2018 00:08:38 +0000</pubDate>
-      
-      <guid>/archives/lazy-evaluation-in-haskell/</guid>
-      <description>&lt;p&gt;本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。&lt;/p&gt;</description>
     </item>
     
     <item>
