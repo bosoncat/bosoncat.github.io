@@ -2,6 +2,7 @@
 title: Haskell中的惰性求值(Lazy evaluation)
 date: 2018-02-03 00:08:38
 tags: ["Haskell"]
+draft: true
 ---
 
 本文主要是对Haskell中的惰性求值(Lazy Evaluation)的一点个人的理解，在编写程序中可以一定程度上节省计算机程序的空间占用。
