@@ -20,7 +20,7 @@ Below are some awesome pages of my friends or good resources; Feel free to conta
 | [MaskRay](http://maskray.me/blog/)                         | MaskRay 的博客                         | <span testURL="https://maskray.me/icon/github.svg"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 | [LLVM Blog](http://blog.llvm.org/)                         | LLVM Blog                              | <span testURL="https://llvm.org/img/DragonSmall.png"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 
-> Note: Sites' status is tested via loading random choosed images from those sites.
+### Note: Sites' status is tested via loading random choosed images from those sites.
 
 ```javascript
 // Code example for testing sites availability.
