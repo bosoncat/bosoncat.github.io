@@ -102,7 +102,7 @@
 <tr>
 <td align="left"><a href="http://matt.might.net/">Matt Might</a></td>
 <td align="left">Lots of interesting topics on PL</td>
-<td align="left"><span testURL="http://matt.might.net/pics/Matt-Might-White-House-2-Jan-2015-small.jpg"> Testing </span></td>
+<td align="left"><span testURL="https://matt.might.net/pics/Matt-Might-White-House-2-Jan-2015-small.jpg"> Testing </span></td>
 </tr>
 
 <tr>
@@ -142,7 +142,7 @@
     };
 
     img.onerror <span style="color:#666">=</span> <span style="color:#a2f;font-weight:bold">function</span>() {
-        links[i].innerHTML <span style="color:#666">=</span> <span style="color:#b44">&#39;&lt;i class=&#34;fas fa-circle&#34; color=&#34;#ff0000&#34;&gt;&lt;/i&gt; Offline&#39;</span>
+        links[i].innerHTML <span style="color:#666">=</span> <span style="color:#b44">&#39;&lt;i class=&#34;fas fa-circle&#34; color=&#34;#ff0000&#34;&gt;&lt;/i&gt; Offline or insecure connection&#39;</span>
     };
 
     img.src <span style="color:#666">=</span> u;
@@ -163,7 +163,7 @@ function testConnections() {
     };
 
     img.onerror = function() {
-        links[i].innerHTML = '<i class="fas fa-circle" color="#ff0000"></i> Offline'
+        links[i].innerHTML = '<i class="fas fa-circle" color="#ff0000"></i> Offline or insecure connection'
     };
 
     img.src = u;
