@@ -15,4 +15,4 @@ date: 2019-06-15T00:30:25+08:00
 
 ### 以后怎么办
 
-我是一个不太擅长做长远规划的人，所以我也不知道自己做的每一个决定是否都是最好的，更不知道未来是什么样子的，还是走一步看一步咯。不过很开心的是，自己还能够坚持做一些目前自己感兴趣的事情。在这半年里，帮助 LLVM [3](https://github.com/llvm/llvm-project/commits?author=vgxbj)做了一些力所能及的补丁，还帮助一个关于 LLVM IR 的教程[4](https://mapping-high-level-constructs-to-llvm-ir.readthedocs.io/)升级了一部分语法，也学到了很多的东西，希望未来不后悔自己的选择吧。我是一个不善于交朋友的人，四年来的朋友屈指可数，但是有个好朋友考研发挥失常，最后希望他明年能够圆梦吧！
+我是一个不太擅长做长远规划的人，所以我也不知道自己做的每一个决定是否都是最好的，更不知道未来是什么样子的，还是走一步看一步咯。不过很开心的是，自己还能够坚持做一些目前自己感兴趣的事情。在这半年里，我帮助 LLVM [3](https://github.com/llvm/llvm-project/commits?author=vgxbj)做了一些力所能及的补丁，还帮助一个关于 LLVM IR 的教程[4](https://mapping-high-level-constructs-to-llvm-ir.readthedocs.io/en/latest/epilogue/contribution.html)升级了一部分语法，也学到了很多的东西，希望未来不后悔自己的选择吧。我是一个不善于交朋友的人，四年来的朋友屈指可数，但是有个好朋友考研发挥失常，最后希望他明年能够圆梦吧！
