@@ -7,6 +7,7 @@ This is the place where I dump interesting things or notes that I am working on.
 
 ### Contact Me
 <span><img src="/img/envelope-solid.svg"> `i#vgxbj.me` (Replace `#` by `@`) </span>
+<span><img src="/img/telegram-solid.svg"><a href="https://t.me/vgxbj"> vgxbj </span>
 
 <span><img src="/img/key-solid.svg"> [7D3D C48B 0A1E C6E1](https://keybase.io/higuoxing/pgp_keys.asc?fingerprint=92e1201290c920dc4735e0f47d3dc48b0a1ec6e1) </span>
 
