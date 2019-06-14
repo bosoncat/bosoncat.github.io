@@ -18,6 +18,7 @@ Below are some awesome pages of my friends or good resources; Feel free to conta
 | [Matt Might](http://matt.might.net/)                       | Lots of interesting topics on PL       | <span testURL="https://matt.might.net/pics/Matt-Might-White-House-2-Jan-2015-small.jpg"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 | [Mike Bostock](https://bost.ocks.org/mike/)                | Founder of D3.js Blog                  | <span testURL="https://bost.ocks.org/mike/code.png"> <img src="/img/circle-solid-yellow.svg"> Testing </span> |
 | [MaskRay](https://maskray.me/blog/)                         | MaskRay 的博客                         | <span testURL="https://maskray.me/icon/github.svg"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
+| [云风的博客](https://blog.codingnow.com/)                   | 云风的博客                             | <span testURL="https://blog.codingnow.com/favicon.ico"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 | [LLVM Blog](https://blog.llvm.org/)                         | LLVM Blog                              | <span testURL="https://llvm.org/img/DragonSmall.png"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 
 ### Note: Sites' status is tested via loading random choosed images from those sites.
