@@ -22,29 +22,6 @@ Below are some awesome pages of my friends or good resources; Feel free to conta
 
 ### Note: Sites' status is tested via loading random choosed images from those sites.
 
-```javascript
-// Code example for testing sites availability.
-function testConnections() {
-  let links = document.querySelectorAll("span[testURL]")
-
-  for (let i = 0; i < links.length; i ++) {
-    let u = links[i].getAttribute('testURL')
-
-    let img = document.body.appendChild(document.createElement("img"));
-    img.style.display = "none";
-    img.onload = function() {
-        links[i].innerHTML = '<img src="/img/circle-solid-green.svg"> Secure connection'
-    };
-
-    img.onerror = function() {
-        links[i].innerHTML = '<img src="/img/circle-solid-red.svg"> Offline or insecure connection'
-    };
-
-    img.src = u;
-  }
-}
-```
-
 <script>
 function testConnections() {
   let links = document.querySelectorAll("span[testURL]")
