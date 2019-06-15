@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>C&#43;&#43; on Somewhere</title>
+    <link>/tags/c&#43;&#43;/</link>
+    <description>Recent content in C&#43;&#43; on Somewhere</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sun, 16 Sep 2018 11:15:00 +0800</lastBuildDate>
+    
+	<atom:link href="/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Value Categories in C&#43;&#43;</title>
+      <link>/archives/value-categories-in-cpp/</link>
+      <pubDate>Sun, 16 Sep 2018 11:15:00 +0800</pubDate>
+      
+      <guid>/archives/value-categories-in-cpp/</guid>
+      <description>&lt;h3 id=&#34;introduction&#34;&gt;Introduction&lt;/h3&gt;
+
+&lt;p&gt;In C++11, with the introducing of move semantics, C++ extended its value categories. Hence, it’s possibly not a good idea to roughly identify expression’s value categories to be &lt;em&gt;lvalue&lt;/em&gt; and &lt;em&gt;rvalue&lt;/em&gt;. This post is to dump some notes about “Value Category” of expressions in C++, together with some interesting history. Just some basic knowledge about C++ is required.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

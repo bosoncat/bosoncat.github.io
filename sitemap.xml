@@ -13,6 +13,18 @@
   </url>
   
   <url>
+    <loc>/tags/</loc>
+    <lastmod>2019-06-15T00:30:25+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/life/</loc>
+    <lastmod>2019-06-15T00:30:25+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/archives/graduation/</loc>
     <lastmod>2019-06-15T00:30:25+08:00</lastmod>
   </url>
@@ -23,9 +35,14 @@
   </url>
   
   <url>
-    <loc>/tags/</loc>
-    <lastmod>2018-07-24T15:16:46+00:00</lastmod>
+    <loc>/tags/c&#43;&#43;/</loc>
+    <lastmod>2018-09-16T11:15:00+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/archives/value-categories-in-cpp/</loc>
+    <lastmod>2018-09-16T11:15:00+08:00</lastmod>
   </url>
   
   <url>
