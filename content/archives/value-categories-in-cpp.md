@@ -2,11 +2,12 @@
 title: Value Categories in C++
 tags: ["C++"]
 date: 2018-09-16T11:15:00+08:00
-draft: true
 ---
 
 ### Introduction
 In C++11, with the introducing of move semantics, C++ extended its value categories. Hence, it’s possibly not a good idea to roughly identify expression’s value categories to be *lvalue* and *rvalue*. This post is to dump some notes about “Value Category” of expressions in C++, together with some interesting history. Just some basic knowledge about C++ is required.
+
+<!--more-->
 
 ### Expressions
 *An expression is a sequence of operators and their operands, that specifies a computation.*

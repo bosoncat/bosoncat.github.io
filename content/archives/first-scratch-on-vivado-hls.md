@@ -6,6 +6,8 @@ tags: ["Vivado"]
 
 其实很早就知道 Vivado HLS 这个东西了，但是身边人没有人使用它，只知道它是一个可以把 C/C++ 转化成 HDL 的一个软件。直到这个暑假，有幸在上海的 LLVM 社区中国的线下聚会上，有在北京 Xilinx 工作的工程师分享了一些有关 HLS 的底层实现方面的介绍，也很有趣。而刚好在前段时间的~~划水~~实习中，有要用到一丢丢的 HLS，所以记录一下使用心得。下面要使用的样例是来自 [pp4fpgas](https://github.com/KastnerRG/pp4fpgas) 中的 Huffman Encoding 章节。源码可以到前面给出的 Github 链接找到。再次推荐一下这本书，从高层到底层的讲解都十分的棒，相见恨晚！
 
+<!--more-->
+
 ### Start Up
 
 找到仓库中的 examples 文件夹后，里面稍稍显得有点乱，找到里面的 

@@ -5,7 +5,9 @@ date: 2018-10-19T15:51:05+08:00
 
 ### Introduction
 
-国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 `(semaphore)`，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)，所有代码可以在 [Github](https://github.com/Higuoxing/blog-source/tree/master/process-sync) 找到
+国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 `(semaphore)`，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)，所有代码可以在 [Github](https://github.com/vgxbj/blog-source/tree/master/process-sync) 找到
+
+<!--more-->
 
 ### 生产者-消费者模型 (Producer–Consumer Problem)
 
