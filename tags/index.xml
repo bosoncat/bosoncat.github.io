@@ -6,10 +6,19 @@
     <description>Recent content in Tags on Somewhere</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 15 Jun 2019 00:30:25 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 15 Jun 2019 17:28:14 +0800</lastBuildDate>
     
 	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>C</title>
+      <link>/tags/c/</link>
+      <pubDate>Sat, 15 Jun 2019 17:28:14 +0800</pubDate>
+      
+      <guid>/tags/c/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>life</title>

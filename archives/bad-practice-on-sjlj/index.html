@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SjLj (setjmp/longjmp) 一次错误的使用 | Somewhere</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">SjLj (setjmp/longjmp) 一次错误的使用</span></h1>
+
+<h2 class="date">2019/06/15</h2>
+</div>
+
+<main>
+<p>前几天在为一个关于 LLVM IR 的<a href="https://mapping-high-level-constructs-to-llvm-ir.readthedocs.io/en/latest/">教程</a> 升级语法的时候，发现教程中使用 <code>SjLj</code> 的地方有点小问题。</p>
+
+<h3 id="简介">简介</h3>
+
+<p>在教程中，有一段代码是这样的，作者直接将一个指向 <code>%Exception</code> 类型的指针的地址转为了 <code>i32</code> (32 位的整数)，然后传递给了 <code>longjmp()</code> 函数。后面在使用这个指针的时候还要利用 <code>inttoptr</code> 来恢复这个指针。<a href="https://github.com/f0rki/mapping-high-level-constructs-to-llvm-ir/blob/master/exception-handling/listings/setjmp_longjmp.ll">源代码</a></p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-llvm" data-lang="llvm">...
+%5 = <span style="color:#a2f;font-weight:bold">ptrtoint</span> <span style="color:#b8860b">%Exception</span> %3 <span style="color:#a2f;font-weight:bold">to</span> <span style="color:#a2f;font-weight:bold">i32</span>
+<span style="color:#a2f;font-weight:bold">call</span> <span style="color:#0b0;font-weight:bold">void</span> @longjmp(<span style="color:#b8860b">%jmp_buf</span>* <span style="color:#b8860b">%throw</span>, <span style="color:#a2f;font-weight:bold">i32</span> %5)
+...
+<span style="color:#b8860b">%status</span> = <span style="color:#a2f;font-weight:bold">call</span> <span style="color:#a2f;font-weight:bold">i32</span> @setjmp(<span style="color:#b8860b">%jmp_buf</span>* <span style="color:#b8860b">%env</span>)
+...
+%6 = <span style="color:#a2f;font-weight:bold">inttoptr</span> <span style="color:#a2f;font-weight:bold">i32</span> <span style="color:#b8860b">%status</span> <span style="color:#a2f;font-weight:bold">to</span> <span style="color:#b8860b">%Exception</span>*</code></pre></div>
+<p>这样做的问题在于没办法在 64 位系统中 (指针为 64 位)，运行以上代码，而且在程序中以整数的形式来传递指针是很危险的。这一点也向作者得到了<a href="https://github.com/f0rki/mapping-high-level-constructs-to-llvm-ir/issues/30">考证</a></p>
+
+<h3 id="使用-sjlj-进行异常处理">使用 SjLj 进行异常处理</h3>
+
+<p>事实上，<code>SjLj</code> 在 C 中作为异常处理的使用还算比较常见。通常在有可能产生异常的地方调用 <code>setjmp(jmp_buf env);</code> 将寄存器的信息保存到 <code>jmp_buf env</code> 中，然后在抛出异常的地方调用 <code>longjmp(jmp_buf env, int val);</code> 恢复寄存器信息，回到调用 <code>setjmp()</code> 的地方，并且 <code>int val</code> 会作为 <code>setjmp()</code> 的返回值。通常我们会使用 <code>int val</code> 来传递 <code>error_code</code> 而不是指针地址。一个简单的例子</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#080">#include</span> <span style="color:#080">&lt;setjmp.h&gt;</span><span style="color:#080">
+</span><span style="color:#080">#include</span> <span style="color:#080">&lt;stdio.h&gt;</span><span style="color:#080">
+</span><span style="color:#080"></span>
+<span style="color:#a2f;font-weight:bold">static</span> jmp_buf env;
+
+<span style="color:#0b0;font-weight:bold">void</span> <span style="color:#00a000">throw_exception</span>() {
+    longjmp(env, <span style="color:#666">42</span>);
+}
+
+<span style="color:#0b0;font-weight:bold">void</span> <span style="color:#00a000">first</span>() {
+    throw_exception();
+}
+
+<span style="color:#0b0;font-weight:bold">int</span> <span style="color:#00a000">main</span>() {
+    <span style="color:#0b0;font-weight:bold">int</span> status <span style="color:#666">=</span> setjmp(env);
+    <span style="color:#a2f;font-weight:bold">if</span> (status <span style="color:#666">==</span> <span style="color:#666">0</span>) {
+        <span style="color:#080;font-style:italic">// try first()
+</span><span style="color:#080;font-style:italic"></span>        first(); <span style="color:#080;font-style:italic">// throw exception
+</span><span style="color:#080;font-style:italic"></span>        <span style="color:#080;font-style:italic">// never reach
+</span><span style="color:#080;font-style:italic"></span>    } <span style="color:#a2f;font-weight:bold">else</span> {
+        <span style="color:#080;font-style:italic">// catch exception
+</span><span style="color:#080;font-style:italic"></span>        fprintf(stderr, <span style="color:#b44">&#34;Exception caught, error code: %d</span><span style="color:#b62;font-weight:bold">\n</span><span style="color:#b44">&#34;</span>, status);
+    }
+
+    <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#666">0</span>;
+}</code></pre></div>
+<h3 id="现实生活中的-sjlj-real-world-sjlj">现实生活中的 SjLj (Real World SjLj)</h3>
+
+<p>其实从上面的 🌰(例子) 中，可以联想到，是不是可以利用 SjLj 构建 C 中的 <code>try-catch block</code>？实际上已经有人为我们完成了这个工作。简单的来说使用宏定义一些东西即可完成这样的任务。我自己尝试做了一个简单的玩具</p>
+<div class="highlight"><pre style="background-color:#f8f8f8;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C" data-lang="C"><span style="color:#080">#include</span> <span style="color:#080">&lt;setjmp.h&gt;</span><span style="color:#080">
+</span><span style="color:#080">#include</span> <span style="color:#080">&lt;stdio.h&gt;</span><span style="color:#080">
+</span><span style="color:#080"></span>
+<span style="color:#080">#define TRY      do { jmp_buf my_env__; int val = setjmp(my_env__); if (val == 0)
+</span><span style="color:#080">#define CATCH(X) else { int X = val;
+</span><span style="color:#080">#define THROW(X) longjmp(my_env__, X)
+</span><span style="color:#080">#define ENDTRY   } } while(0)
+</span><span style="color:#080"></span>
+<span style="color:#0b0;font-weight:bold">int</span> <span style="color:#00a000">main</span>() {
+    TRY {
+        printf(<span style="color:#b44">&#34;In try block</span><span style="color:#b62;font-weight:bold">\n</span><span style="color:#b44">&#34;</span>);
+        THROW(<span style="color:#666">42</span>);
+        printf(<span style="color:#b44">&#34;Cannot reach</span><span style="color:#b62;font-weight:bold">\n</span><span style="color:#b44">&#34;</span>);
+    } CATCH(e) {
+        printf(<span style="color:#b44">&#34;Got Exception code: %d</span><span style="color:#b62;font-weight:bold">\n</span><span style="color:#b44">&#34;</span>, e);
+    }
+    ENDTRY;
+
+    <span style="color:#a2f;font-weight:bold">return</span> <span style="color:#666">0</span>;
+}</code></pre></div>
+<p>一个叫做 <code>CException</code> 的库就是利用了这个想法 <a href="https://github.com/ThrowTheSwitch/CException/">link</a></p>
+
+<h3 id="参考资料">参考资料</h3>
+
+<p>[1] <a href="https://en.wikipedia.org/wiki/Setjmp.h">setjmp.h &ndash; Wikipedia</a></p>
+
+<p>[2] <a href="http://www.throwtheswitch.org/cexception">CException</a></p>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2019 <a href="https://vgxbj.github.io/">Xing GUO</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+
