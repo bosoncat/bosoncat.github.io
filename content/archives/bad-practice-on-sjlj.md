@@ -1,7 +1,6 @@
 ---
 title: "SjLj (setjmp/longjmp) 一次错误的使用"
 date: 2019-06-15T17:28:14+08:00
-draft: true
 tags: ["C"]
 ---
 
