@@ -238,7 +238,7 @@ acceptable states  fromList [fromList [1,2,3,4,6,7,8,9]]
 
 ### Reference
 
-* [Compilers: Principles, Techniques, and Tools (2nd Edition)](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811)
-* [From NFA to DFA](https://s3-ap-southeast-1.amazonaws.com/erbuc/files/4147_9df47151-b5ec-4912-be06-5e51f17ad707.pdf)
-* [Hackage: Data.Set](https://hackage.haskell.org/package/containers-0.5.11.0/docs/Data-Set.html)
+[1] [Compilers: Principles, Techniques, and Tools (2nd Edition)](https://www.amazon.com/Compilers-Principles-Techniques-Tools-2nd/dp/0321486811)
+[2] [From NFA to DFA](https://s3-ap-southeast-1.amazonaws.com/erbuc/files/4147_9df47151-b5ec-4912-be06-5e51f17ad707.pdf)
+[3] [Hackage: Data.Set](https://hackage.haskell.org/package/containers-0.5.11.0/docs/Data-Set.html)
 
