@@ -7,6 +7,7 @@ Below are some awesome pages of my friends or good resources; Feel free to conta
 | Where?                                                     | What?                                  | Site Status             |
 |:---------------------------------------------------------- |:-------------------------------------- |:----------------------- |
 | [浅浅的博客](https://seujxh.wordpress.com/)                | 浅浅的博客                             | <span testURL="https://seujxh.wordpress.com/favicon.ico"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
+| [Shadow 的博客](https://drunkdream.com/)                | Shadow 的博客                             | <span testURL="https://www.drunkdream.com/images/logo.gif"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 | [我的小米粥分你一半](https://corvo.myseu.cn/)              | FYH 的博客                             | <span testURL="https://corvo.myseu.cn/favicon.ico"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span>       |
 | [Max Qi](https://cherishher.github.io/)                    | Max Qi 的博客                          | <span testURL="https://cherishher.github.io/img/favicon.ico"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span> |
 | [ MHY ](https://www.96mhy.top/)                            | MHY 的博客                             | <span testURL="https://www.96mhy.top/image/1.jpg"> <img src="/img/circle-solid-yellow.svg"> Testing connection </span>|
