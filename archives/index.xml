@@ -21,15 +21,6 @@
     </item>
     
     <item>
-      <title>毕业 🎓</title>
-      <link>/archives/graduation/</link>
-      <pubDate>Sat, 15 Jun 2019 00:30:25 +0800</pubDate>
-      
-      <guid>/archives/graduation/</guid>
-      <description>&lt;p&gt;已经很久没有写过一些东西了，看了下最近一次的博客已经是去年十月份的了。其实也不是这大半年没有学习新知识，实在是因为自己懒惰，以及自己的心态有一些不对头。那就更新一个这半年来生活方面的文（流）章（水）吧（账）。&lt;/p&gt;</description>
-    </item>
-    
-    <item>
       <title>进程同步的几个小问题</title>
       <link>/archives/process-sync/</link>
       <pubDate>Fri, 19 Oct 2018 15:51:05 +0800</pubDate>
@@ -38,17 +29,6 @@
       <description>&lt;h3 id=&#34;introduction&#34;&gt;Introduction&lt;/h3&gt;
 
 &lt;p&gt;国庆节看了一点点 go, 看到 go channel 比较眼熟，可以当做进程同步中的信号量 &lt;code&gt;(semaphore)&lt;/code&gt;，毕竟 go 是本身支持并发的，所以拿他来做这部分作业还是很省事的，下面就简单的用它来模拟一下课本中几个经典的问题 (本文可能会一点一点的更新，也欢迎大家补充~)，所有代码可以在 &lt;a href=&#34;https://github.com/vgxbj/blog-source/tree/master/process-sync&#34;&gt;Github&lt;/a&gt; 找到&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>Value Categories in C&#43;&#43;</title>
-      <link>/archives/value-categories-in-cpp/</link>
-      <pubDate>Sun, 16 Sep 2018 11:15:00 +0800</pubDate>
-      
-      <guid>/archives/value-categories-in-cpp/</guid>
-      <description>&lt;h3 id=&#34;introduction&#34;&gt;Introduction&lt;/h3&gt;
-
-&lt;p&gt;In C++11, with the introducing of move semantics, C++ extended its value categories. Hence, it’s possibly not a good idea to roughly identify expression’s value categories to be &lt;em&gt;lvalue&lt;/em&gt; and &lt;em&gt;rvalue&lt;/em&gt;. This post is to dump some notes about “Value Category” of expressions in C++, together with some interesting history. Just some basic knowledge about C++ is required.&lt;/p&gt;</description>
     </item>
     
     <item>
@@ -67,15 +47,6 @@
       
       <guid>/archives/manage-vivado-projects/</guid>
       <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西&lt;/p&gt;</description>
-    </item>
-    
-    <item>
-      <title>迁移到 [NeoVim]</title>
-      <link>/archives/move-to-vim/</link>
-      <pubDate>Sat, 23 Jun 2018 15:16:46 +0000</pubDate>
-      
-      <guid>/archives/move-to-vim/</guid>
-      <description>&lt;p&gt;很早就想尝试一下 &lt;code&gt;NeoVim&lt;/code&gt; 了，因为每次配置 Vim 有点太烦了，而且这次直接换用了 Vim-Plug 的包管理，比起原来配置起来更方便了，而且更快了。初次尝试还是不错的，尤其是 NeoVim 有一个 &lt;code&gt;:terminal&lt;/code&gt; 的命令，可以调出一个 Buffer 来容纳一个 Terminal Emulator ，这样调试程序就很方便了。但是在使用过程有个小小的不舒服的地方就是，当输入 exit 退出当前 Terminal 的时候，整个 NeoVim 都会退出，Google 了之后貌似是 Terminal 的Buffer 和 普通的 Buffer 不太一样，所以导致了这个奇怪的问题。&lt;/p&gt;</description>
     </item>
     
     <item>
