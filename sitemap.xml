@@ -4,7 +4,35 @@
   
   <url>
     <loc>/archives/</loc>
-    <lastmod>2019-06-15T17:28:14+08:00</lastmod>
+    <lastmod>2020-08-28T13:18:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/gsoc/</loc>
+    <lastmod>2020-08-28T13:18:28+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2020-08-28T13:18:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/llvm/</loc>
+    <lastmod>2020-08-28T13:18:28+08:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/archives/my-journey-with-llvm-iii/</loc>
+    <lastmod>2020-08-28T13:18:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2020-08-28T13:18:28+08:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
@@ -14,19 +42,8 @@
   </url>
   
   <url>
-    <loc>/</loc>
-    <lastmod>2019-06-15T17:28:14+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/archives/bad-practice-on-sjlj/</loc>
     <lastmod>2019-06-15T17:28:14+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
-    <lastmod>2019-06-15T17:28:14+08:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
