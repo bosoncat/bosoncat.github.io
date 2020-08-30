@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Somewhere</title>
+    <title>Tags on Xing GUO&#39;s Site</title>
     <link>/tags/</link>
-    <description>Recent content in Tags on Somewhere</description>
+    <description>Recent content in Tags on Xing GUO&#39;s Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 28 Aug 2020 13:18:28 +0800</lastBuildDate>
@@ -39,11 +39,29 @@
     </item>
     
     <item>
+      <title>life</title>
+      <link>/tags/life/</link>
+      <pubDate>Sat, 15 Jun 2019 00:30:25 +0800</pubDate>
+      
+      <guid>/tags/life/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Vivado</title>
       <link>/tags/vivado/</link>
       <pubDate>Tue, 24 Jul 2018 15:16:46 +0000</pubDate>
       
       <guid>/tags/vivado/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vim</title>
+      <link>/tags/vim/</link>
+      <pubDate>Sat, 23 Jun 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/tags/vim/</guid>
       <description></description>
     </item>
     

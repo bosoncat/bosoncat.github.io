@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>life on Xing GUO&#39;s Site</title>
+    <link>/tags/life/</link>
+    <description>Recent content in life on Xing GUO&#39;s Site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 15 Jun 2019 00:30:25 +0800</lastBuildDate>
+    
+	<atom:link href="/tags/life/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>毕业 🎓</title>
+      <link>/archives/graduation/</link>
+      <pubDate>Sat, 15 Jun 2019 00:30:25 +0800</pubDate>
+      
+      <guid>/archives/graduation/</guid>
+      <description>&lt;p&gt;已经很久没有写过一些东西了，看了下最近一次的博客已经是去年十月份的了。其实也不是这大半年没有学习新知识，实在是因为自己懒惰，以及自己的心态有一些不对头。那就更新一个这半年来生活方面的文（流）章（水）吧（账）。&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

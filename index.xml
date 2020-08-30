@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Home on Somewhere</title>
+    <title>Home on Xing GUO&#39;s Site</title>
     <link>/</link>
-    <description>Recent content in Home on Somewhere</description>
+    <description>Recent content in Home on Xing GUO&#39;s Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 28 Aug 2020 13:18:28 +0800</lastBuildDate>
@@ -48,6 +48,15 @@
     </item>
     
     <item>
+      <title>毕业 🎓</title>
+      <link>/archives/graduation/</link>
+      <pubDate>Sat, 15 Jun 2019 00:30:25 +0800</pubDate>
+      
+      <guid>/archives/graduation/</guid>
+      <description>&lt;p&gt;已经很久没有写过一些东西了，看了下最近一次的博客已经是去年十月份的了。其实也不是这大半年没有学习新知识，实在是因为自己懒惰，以及自己的心态有一些不对头。那就更新一个这半年来生活方面的文（流）章（水）吧（账）。&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>进程同步的几个小问题</title>
       <link>/archives/process-sync/</link>
       <pubDate>Fri, 19 Oct 2018 15:51:05 +0800</pubDate>
@@ -74,6 +83,15 @@
       
       <guid>/archives/manage-vivado-projects/</guid>
       <description>&lt;p&gt;最近在划水 FPGA 的一个培训，因为可以兑换学校的实习学分，所以就凑了热闹，不过重新温习这个东西我也有了一点对 Vivado 项目管理的想法，同时也找到了一些有用的东西&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>迁移到 [NeoVim]</title>
+      <link>/archives/move-to-vim/</link>
+      <pubDate>Sat, 23 Jun 2018 15:16:46 +0000</pubDate>
+      
+      <guid>/archives/move-to-vim/</guid>
+      <description>&lt;p&gt;很早就想尝试一下 &lt;code&gt;NeoVim&lt;/code&gt; 了，因为每次配置 Vim 有点太烦了，而且这次直接换用了 Vim-Plug 的包管理，比起原来配置起来更方便了，而且更快了。初次尝试还是不错的，尤其是 NeoVim 有一个 &lt;code&gt;:terminal&lt;/code&gt; 的命令，可以调出一个 Buffer 来容纳一个 Terminal Emulator ，这样调试程序就很方便了。但是在使用过程有个小小的不舒服的地方就是，当输入 exit 退出当前 Terminal 的时候，整个 NeoVim 都会退出，Google 了之后貌似是 Terminal 的Buffer 和 普通的 Buffer 不太一样，所以导致了这个奇怪的问题。&lt;/p&gt;</description>
     </item>
     
     <item>
