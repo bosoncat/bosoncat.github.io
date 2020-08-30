@@ -36,6 +36,11 @@
   </url>
   
   <url>
+    <loc>/archives/my-journey-with-llvm-i/</loc>
+    <lastmod>2020-06-30T14:12:15+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/tags/c/</loc>
     <lastmod>2019-06-15T17:28:14+08:00</lastmod>
     <priority>0</priority>

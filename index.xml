@@ -21,6 +21,15 @@
     </item>
     
     <item>
+      <title>My Journey with LLVM (GSoC&#39;20 Phase 1)</title>
+      <link>/archives/my-journey-with-llvm-i/</link>
+      <pubDate>Tue, 30 Jun 2020 14:12:15 +0800</pubDate>
+      
+      <guid>/archives/my-journey-with-llvm-i/</guid>
+      <description>&lt;p&gt;It has been one month since my proposal gets accepted by GSoC&amp;rsquo;20. I learned a lot and had a wonderful time. Besides, we’ve made some progress towards our goal. Hence, it’s a good time to review what I’ve done and what I’ve learned in the first coding period.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
       <title>SjLj (setjmp/longjmp) 一次错误的使用</title>
       <link>/archives/bad-practice-on-sjlj/</link>
       <pubDate>Sat, 15 Jun 2019 17:28:14 +0800</pubDate>

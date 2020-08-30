@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Journey with LLVM (GSoC&#39;20 Phase 1) | Somewhere</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">My Journey with LLVM (GSoC&rsquo;20 Phase 1)</span></h1>
+
+<h2 class="date">2020/06/30</h2>
+</div>
+
+<main>
+<p>It has been one month since my proposal gets accepted by GSoC&rsquo;20. I learned a lot and had a wonderful time. Besides, we’ve made some progress towards our goal. Hence, it’s a good time to review what I’ve done and what I’ve learned in the first coding period.</p>
+
+<h3 id="the-project">The Project</h3>
+
+<p>In LLVM, we use <code>yaml2obj</code> to handcraft simple binaries of various formats in YAML, e.g., ELF, Mach-O, COFF, etc. My project is to add DWARF support to <code>yaml2obj</code> which hopefully makes it easier for people to handcraft debug sections in those kinds of binaries. This project is supervised by James Henderson.</p>
+
+<h3 id="the-progress">The Progress</h3>
+
+<p>We’ve already ported existing DWARF implementation to <code>yaml2elf</code> as planned. People are able to handcraft DWARF sections at a low level. I have to admit that the current implementation of DWARF sections is hard to use since we have to specify nearly every field of those sections, e.g., the length, the version, the address or offset of the associated DWARF section, etc. That’s because those sections are isolated in the current implementation and DWARFYAML lacks a strategy to make those sections get interlinked properly. This is what we are going to address and I believe it will be improved in the future. We also have a <a href="https://docs.google.com/spreadsheets/d/1qo5DWkBgSZjqVL6KlTXiV0kpUObuSlse7qDwn_WoXNE/edit?usp=sharing">spreadsheet</a> to record the progress against the expected timeline.</p>
+
+<h3 id="the-implementation-status">The Implementation Status</h3>
+
+<p>The supported DWARF sections’ syntax and known issues are listed below. I’m not going to resolve all of the issues since some DWARF sections are deprecated in DWARFv5 spec and rarely used.</p>
+
+<blockquote>
+<p>Note: The fields quoted by &ldquo;[[]]&rdquo; are optional.</p>
+</blockquote>
+
+<table>
+<thead>
+<tr>
+<th align="left">Syntax</th>
+<th align="left">Known Issues/Possible Improvements</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left"><pre>debug_abbrev:<br>  - [[Code: 1]]<br>    Tag: DW_CHILDREN_yes<br>    Attributes:<br>      - Attribute: DW_AT_producer<br>        Form: DW_FORM_strp</pre></td>
+<td align="left">* Doesn&rsquo;t support emitting multiple abbrev tables. <a href="https://reviews.llvm.org/D83116">D83116</a></td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_addr:<br>  - [[Format: DWARF32/DWARF64]]<br>    [[Length: 0x1234]]<br>    Version: 5<br>    [[AddressSize: 8]]<br>    [[SegmentSelectorSize: 0]]<br>    Entries:<br>      - Address: 0x1234<br>        [[Segment: 0x1234]]</pre></td>
+<td align="left">* <code>yaml2macho</code> doesn&rsquo;t support emitting the <code>.debug_addr</code> section.<br> * <code>dwarf2yaml</code> doesn&rsquo;t support parsing the <code>.debug_addr</code> section.</td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_aranges:<br>  - [[Format: DWARF32/DWARF64]]<br>    Length: 0x1234<br>    CuOffset: 0x1234<br>    AddrSize: 0x08<br>    SegSize: 0x00<br>    Descriptors:<br>      - Address: 0x1234<br>        Length: 0x00</pre></td>
+<td align="left">* The <code>Length</code>, <code>AddrSize</code> and <code>SegSize</code> fields should be optional.<br> * Rename <code>CuOffset</code> to <code>DebugInfoOffset</code>.<br> * Rename <code>AddrSize</code> to <code>AddressSize</code>.<br> * Rename <code>SegSize</code> to <code>SegmentSelectorSize</code>.</td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_info:<br>  - [[Format: DWARF32/DWARF64]]<br>    Length: 0x1234<br>    Version: 5<br>    UnitType: DW_UT_compile<br>    AbbrOffset: 0x00<br>    AddrSize: 0x08<br>    Entries:<br>      - AbbrCode: 1<br>        Values:<br>          - Value: 0x1234<br>          - BlockData: [ 0x12, 0x34 ]<br>          - CStr: &lsquo;abcd&rsquo;</pre></td>
+<td align="left">* Rename <code>AbbrOffset</code> to <code>DebugAbbrevOffset</code>.<br> * Rename <code>AddrSize</code> to <code>AddressSize</code>.<br> * Rename <code>AbbrCode</code> to <code>AbbrevCode</code> or <code>Code</code>.</td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_line:<br>  - [[Format: DWARF32/DWARF64]]<br>    Length: 0x1234<br>    Version: 4<br>    PrologueLength: 0x1234<br>    MinInstLength: 1<br>    DefaultIsStmt: 1<br>    LineBase: 251<br>    LineRange: 14<br>    OpcodeBase: 3<br>    StandardOpcodeLengths: [ 0, 1, 1 ]<br>    IncludeDirs:<br>      - a.dir<br>    Files:<br>      - Name: hello.c<br>        DirIndex: 0<br>        ModTime: 0<br>        Length: 0<br>    Opcodes:<br>      - Opcode: DW_LNS_extended_op<br>        ExtLen: 9<br>        SubOpcode: DW_LNE_set_address<br>        Data: 0x1234</pre></td>
+<td align="left">* The DWARFv5 <code>.debug_line</code> section isn&rsquo;t tested.</td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_pub_names/types:<br>  Length:<br>    TotalLength: 0xffffffff<br>    TotalLength64: 0x0c<br>  Version: 2<br>  UnitOffset: 0x1234<br>  UnitSize: 0x4321<br>  Entries:<br>    DieOffset: 0x1234<br>    Name: abcd</pre></td>
+<td align="left">* Doesn’t support emitting multiple pub tables.<br> * Replace <code>Length</code> with <code>Format</code> and <code>Length</code>.</td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_ranges:<br>  - AddrSize: 0x04<br>    Entries:<br>      - LowOffset: 0x10<br>        HighOffset: 0x20</pre></td>
+<td align="left"></td>
+</tr>
+
+<tr>
+<td align="left"><pre>debug_str:<br>  - abc<br>  - def</pre></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="accomplishments">Accomplishments</h3>
+
+<p>I’m very happy that I’m roughly able to reach the goal of the first period. During the first coding period, I learned about how the debug information is represented at a lower level in object files and how to process errors in the LLVM library. I’m also able to dig into some related core libraries, such as DebugInfo, CodeGen, and so on.</p>
+
+<h3 id="areas-in-need-of-improvements">Areas in Need of Improvements</h3>
+
+<p>However, there are still some areas that I didn’t do well. When I was working on porting DWARF support to <code>yaml2elf</code>, I found that some DWARF sections were not well-formatted, e.g., the <code>.debug_pub*</code> sections don’t support emitting multiple pub tables, the <code>.debug_abbrev</code> section doesn’t support emitting multiple abbreviation tables, the <code>.debug_pub*</code> and <code>.debug_abbrev</code> sections lack terminating entries, etc. I used to port them to <code>yaml2elf</code> first and then try to fix the issue. However, it’s not the right approach! I should have fixed the issue first and then ported the section to <code>yaml2elf</code> so that I don’t have to update the test cases in many places and this prevents ill-formed test cases from spreading everywhere.</p>
+
+<p>Besides, if I had made <code>elf2yaml</code> support converting DWARF sections back to YAML, my life would be easier. After porting some sections to <code>yaml2elf</code>, I realize that it’s good for us to have a tool that is able to convert DWARF sections back so that I don’t have to handcraft too many sections.</p>
+
+<h3 id="acknowledgements">Acknowledgements</h3>
+
+<p>I would love to express my sincere gratitude to James Henderson for mentoring me during this project, and to folks for reviewing my patches and giving many useful suggestions in my proposal!</p>
+
+<h3 id="accepted-patches">Accepted Patches</h3>
+
+<p>In case these patches are useful for evaluation.</p>
+
+<p>D82435 <a href="https://reviews.llvm.org/D82435">[DWARFYAML][debug<em>gnu</em>*] Add the missing context</a></p>
+
+<p>D82933 <a href="https://reviews.llvm.org/D82933">[DWARFYAML][debug_abbrev] Emit 0 byte for terminating abbreviations.</a></p>
+
+<p>D82622 <a href="https://reviews.llvm.org/D82622">[DWARFYAML][debug_info] Replace &lsquo;InitialLength&rsquo; with &lsquo;Format&rsquo; and &lsquo;Length&rsquo;.</a></p>
+
+<p>D82367 <a href="https://reviews.llvm.org/D82367">[ObjectYAML][ELF] Add support for emitting the .debug_gnu_pubnames/pubtypes sections.</a></p>
+
+<p>D82630 <a href="https://reviews.llvm.org/D82630">[ObjectYAML][DWARF] Collect diagnostic message when YAMLParser fails.</a></p>
+
+<p>D82296 <a href="https://reviews.llvm.org/D82296">[ObjectYAML][ELF] Add support for emitting the .debug_pubnames section.</a></p>
+
+<p>D82621 <a href="https://reviews.llvm.org/D82621">[DWARFYAML][debug_info] Teach yaml2obj emit correct DWARF64 unit header.</a></p>
+
+<p>D82351 <a href="https://reviews.llvm.org/D82351">[ObjectYAML][DWARF] Remove unused context. NFC.</a></p>
+
+<p>D82347 <a href="https://reviews.llvm.org/D82347">[ObjectYAML][ELF] Add support for emitting the .debug_pubtypes section.</a></p>
+
+<p>D82275 <a href="https://reviews.llvm.org/D82275">[DWARFYAML][debug_info] Add support for error handling.</a></p>
+
+<p>D82173 <a href="https://reviews.llvm.org/D82173">[DWARFYAML][debug_info] Use &lsquo;AbbrCode&rsquo; to index the abbreviation.</a></p>
+
+<p>D82139 <a href="https://reviews.llvm.org/D82139">[DWARFYAML][debug_info] Fix array index out of bounds error.</a></p>
+
+<p>D82073 <a href="https://reviews.llvm.org/D82073">[ObjectYAML][ELF] Add support for emitting the .debug_info section.</a></p>
+
+<p>D81826 <a href="https://reviews.llvm.org/D81826">[DWARFYAML][debug_abbrev] Make the abbreviation code optional.</a></p>
+
+<p>D81820 <a href="https://reviews.llvm.org/D81820">[ObjectYAML][ELF] Add support for emitting the .debug_abbrev section.</a></p>
+
+<p>D81915 <a href="https://reviews.llvm.org/D81915">[ObjectYAML][DWARF] Let writeVariableSizedInteger() return Error.</a></p>
+
+<p>D81541 <a href="https://reviews.llvm.org/D81541">[ObjectYAML][DWARF] Implement the .debug_addr section.</a></p>
+
+<p>D81709 <a href="https://reviews.llvm.org/D81709">[ObjectYAML][DWARF] Let the target address size be inferred from FileHeader.</a></p>
+
+<p>D81529 <a href="https://reviews.llvm.org/D81529">[ObjectYAML][test] Use a single test file to test the empty &lsquo;DWARF&rsquo; entry.</a></p>
+
+<p>D80722 <a href="https://reviews.llvm.org/D80722">[ObjectYAML][DWARF] Make the <code>PubSection</code> optional.</a></p>
+
+<p>D81220 <a href="https://reviews.llvm.org/D81220">[DWARFYAML][debug_ranges] Make the &ldquo;Offset&rdquo; field optional.</a></p>
+
+<p>D81528 <a href="https://reviews.llvm.org/D81528">[DWARFYAML] Add support for emitting DWARF64 .debug_aranges section.</a></p>
+
+<p>D81450 <a href="https://reviews.llvm.org/D81450">[ObjectYAML][ELF] Add support for emitting the .debug_line section.</a></p>
+
+<p>D81357 <a href="https://reviews.llvm.org/D81357">[DWARFYAML][debug_ranges] Emit an error message for invalid offset.</a></p>
+
+<p>D81356 <a href="https://reviews.llvm.org/D81356">[ObjectYAML] Add support for error handling in DWARFYAML. NFC.</a></p>
+
+<p>D80203 <a href="https://reviews.llvm.org/D80203">[ObjectYAML][DWARF] Add DWARF entry in ELFYAML.</a></p>
+
+<p>D80862 <a href="https://reviews.llvm.org/D80862">[ObjectYAML][test] Address comments in D80203.</a></p>
+
+<p>D81217 <a href="https://reviews.llvm.org/D81217">[ObjectYAML][DWARF] Support emitting .debug_ranges section in ELFYAML.</a></p>
+
+<p>D81063 <a href="https://reviews.llvm.org/D81063">[DWARFYAML][debug_aranges] Replace InitialLength with Format and Length.</a></p>
+
+<p>D81051 <a href="https://reviews.llvm.org/D81051">[ObjectYAML][ELF] Let the endianness of DWARF sections be inferred from FileHeader.</a></p>
+
+<p>D80972 <a href="https://reviews.llvm.org/D80972">[ObjectYAML][DWARF] Support emitting the .debug_aranges section in ELFYAML.</a></p>
+
+<p>D80535 <a href="https://reviews.llvm.org/D80535">[ObjectYAML][MachO] Add error handling in MachOEmitter.</a></p>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2019 <a href="https://vgxbj.github.io/">Xing GUO</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+
