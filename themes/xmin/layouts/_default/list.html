@@ -6,6 +6,7 @@
 
 {{ .Content }}
 
+{{/*
 {{if .IsHome }}
 <ul>
   {{ range first 3 (where .Data.Pages "Section" "!=" "") }}
@@ -16,6 +17,7 @@
   {{ end }}
 </ul>
 {{ end }}
+*/}}
 
 {{if not .IsHome}}
 <ul>

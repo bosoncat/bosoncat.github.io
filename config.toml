@@ -1,6 +1,6 @@
 baseURL = "/"
 languageCode = "en-us"
-title = "Somewhere"
+title = "Xing GUO's Site"
 theme = "xmin"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 preserveTaxonomyNames = true
@@ -37,7 +37,7 @@ PygmentsStyle = "emacs"
 
 [params]
     description = "A website built through Hugo and blogdown."
-    footer = "&copy;  2017 -- 2019 [Xing GUO](https://vgxbj.github.io/) | Powered by [Hugo](https://github.com/gohugoio/hugo) | Theme: [Xmin](https://github.com/yihui/hugo-xmin)"
+    footer = "&copy;  2017 -- 2020 [Xing GUO](https://higuoxing.com/) | Powered by [Hugo](https://github.com/gohugoio/hugo) | Theme: [Xmin](https://github.com/yihui/hugo-xmin)"
 
 [markup]
   [markup.goldmark]
