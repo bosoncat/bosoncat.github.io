@@ -95,41 +95,28 @@
 
 <p><strong>Ongoing:</strong></p>
 
-<p>D86614 <a href="https://reviews.llvm.org/D86614">[DWARFYAML] Make the debug_abbrev_offset field optional.</a></p>
-
-<p>D86545 <a href="https://reviews.llvm.org/D86545">[DWARFYAML] Abbrev codes in a new abbrev table should start from 1 (by default).</a></p>
-
-<p>D85289 <a href="https://reviews.llvm.org/D85289">[DWARFYAML][debug_info] Rename some mapping keys. NFC.</a></p>
+<p>D86614 <a href="https://reviews.llvm.org/D86614">[DWARFYAML] Make the debug_abbrev_offset field optional.</a>                         <br>
+D86545 <a href="https://reviews.llvm.org/D86545">[DWARFYAML] Abbrev codes in a new abbrev table should start from 1 (by default).</a> <br>
+D85289 <a href="https://reviews.llvm.org/D85289">[DWARFYAML][debug_info] Rename some mapping keys. NFC.</a></p>
 
 <p><strong>Porting the existing DWARF support to <code>yaml2elf</code>:</strong></p>
 
-<p>D80203 <a href="https://reviews.llvm.org/D80203">[ObjectYAML][DWARF] Add DWARF entry in ELFYAML.</a></p>
-
-<p>D80972 <a href="https://reviews.llvm.org/D80203">[ObjectYAML][DWARF] Support emitting the .debug_aranges section in ELFYAML.</a></p>
-
-<p>D81217 <a href="https://reviews.llvm.org/D81217">[ObjectYAML][DWARF] Support emitting .debug_ranges section in ELFYAML.</a></p>
-
-<p>D81450 <a href="https://reviews.llvm.org/D81450">[ObjectYAML][ELF] Add support for emitting the .debug_line section.</a></p>
-
-<p>D81820 <a href="https://reviews.llvm.org/D81820">[ObjectYAML][ELF] Add support for emitting the .debug_abbrev section.</a></p>
-
-<p>D82073 <a href="https://reviews.llvm.org/D82073">[ObjectYAML][ELF] Add support for emitting the .debug_info section.</a></p>
-
-<p>D82347 <a href="https://reviews.llvm.org/D82347">[ObjectYAML][ELF] Add support for emitting the .debug_pubtypes section.</a></p>
-
-<p>D82367 <a href="https://reviews.llvm.org/D82367">[ObjectYAML][ELF] Add support for emitting the .debug_gnu_pubnames/pubtypes sections.</a></p>
-
-<p>D82296 <a href="https://reviews.llvm.org/D82296">[ObjectYAML][ELF] Add support for emitting the .debug_pubnames section.</a></p>
+<p>D80203 <a href="https://reviews.llvm.org/D80203">[ObjectYAML][DWARF] Add DWARF entry in ELFYAML.</a>                                       <br>
+D80972 <a href="https://reviews.llvm.org/D80203">[ObjectYAML][DWARF] Support emitting the .debug_aranges section in ELFYAML.</a>           <br>
+D81217 <a href="https://reviews.llvm.org/D81217">[ObjectYAML][DWARF] Support emitting .debug_ranges section in ELFYAML.</a>                <br>
+D81450 <a href="https://reviews.llvm.org/D81450">[ObjectYAML][ELF] Add support for emitting the .debug_line section.</a>                   <br>
+D81820 <a href="https://reviews.llvm.org/D81820">[ObjectYAML][ELF] Add support for emitting the .debug_abbrev section.</a>                 <br>
+D82073 <a href="https://reviews.llvm.org/D82073">[ObjectYAML][ELF] Add support for emitting the .debug_info section.</a>                   <br>
+D82347 <a href="https://reviews.llvm.org/D82347">[ObjectYAML][ELF] Add support for emitting the .debug_pubtypes section.</a>               <br>
+D82367 <a href="https://reviews.llvm.org/D82367">[ObjectYAML][ELF] Add support for emitting the .debug_gnu_pubnames/pubtypes sections.</a> <br>
+D82296 <a href="https://reviews.llvm.org/D82296">[ObjectYAML][ELF] Add support for emitting the .debug_pubnames section.</a></p>
 
 <p><strong>Introducing new DWARF sections to <code>yaml2obj</code>:</strong></p>
 
-<p>D81541 <a href="https://reviews.llvm.org/D81541">[ObjectYAML][DWARF] Implement the .debug_addr section.</a></p>
-
-<p>D83624 <a href="https://reviews.llvm.org/D83624">[DWARFYAML] Implement the .debug_rnglists section.</a></p>
-
-<p>D83853 <a href="https://reviews.llvm.org/D83853">[DWARFYAML] Implement the .debug_str_offsets section.</a></p>
-
-<p>D84234 <a href="https://reviews.llvm.org/D84234">[DWARFYAML] Implement the .debug_loclists section.</a></p>
+<p>D81541 <a href="https://reviews.llvm.org/D81541">[ObjectYAML][DWARF] Implement the .debug_addr section.</a> <br>
+D83624 <a href="https://reviews.llvm.org/D83624">[DWARFYAML] Implement the .debug_rnglists section.</a>     <br>
+D83853 <a href="https://reviews.llvm.org/D83853">[DWARFYAML] Implement the .debug_str_offsets section.</a>  <br>
+D84234 <a href="https://reviews.llvm.org/D84234">[DWARFYAML] Implement the .debug_loclists section.</a></p>
 
 <p><strong>Adding DWARF support to obj2yaml:</strong></p>
 
@@ -137,121 +124,66 @@
 
 <p><strong>Refactoring work (improving error handling, making YAML fields optional, adding DWARF64 support, etc):</strong></p>
 
-<p>D80535 <a href="https://reviews.llvm.org/D80535">[ObjectYAML][MachO] Add error handling in MachOEmitter.</a></p>
-
-<p>D80861 <a href="https://reviews.llvm.org/D80861">[ObjectYAML][DWARF] Let <code>dumpPubSection</code> return <code>DWARFYAML::PubSection</code>.</a></p>
-
-<p>D81063 <a href="https://reviews.llvm.org/D81063">[DWARFYAML][debug_aranges] Replace InitialLength with Format and Length.</a></p>
-
-<p>D81051 <a href="https://reviews.llvm.org/D81051">[ObjectYAML][ELF] Let the endianness of DWARF sections be inferred from FileHeader.</a></p>
-
-<p>D86590 <a href="https://reviews.llvm.org/D86590">[DWARFYAML] Make the unit_length and header_length fields optional.</a></p>
-
-<p>D86537 <a href="https://reviews.llvm.org/D86537">[DWARFYAML] Make the &lsquo;Attributes&rsquo; field optional.</a></p>
-
-<p>D83116 <a href="https://reviews.llvm.org/D83116">[DWARFYAML] Add support for referencing different abbrev tables.</a></p>
-
-<p>D86194 <a href="https://reviews.llvm.org/D86194">[DWARFYAML] Add support for emitting multiple abbrev tables.</a></p>
-
-<p>D86192 <a href="https://reviews.llvm.org/D86192">[obj2yaml] Refactor the .debug_pub* sections dumper.</a></p>
-
-<p>D85880 <a href="https://reviews.llvm.org/D85880">[DWARFYAML] Replace InitialLength with Format and Length. NFC.</a></p>
-
-<p>D85805 <a href="https://reviews.llvm.org/D85805">[DWARFYAML] Make the address size of compilation units optional.</a></p>
-
-<p>D85821 <a href="https://reviews.llvm.org/D85821">[MachOYAML] Simplify the section data emitting function. NFC.</a></p>
-
-<p>D85707 <a href="https://reviews.llvm.org/D85707">[DWARFYAML] Let the address size of line tables inferred from the object file.</a></p>
-
-<p>D85506 <a href="https://reviews.llvm.org/D85506">[macho2yaml] Refactor the DWARF section dumpers.</a></p>
-
-<p>D85496 <a href="https://reviews.llvm.org/D85496">[macho2yaml] Remove unused functions. NFC.</a></p>
-
-<p>D85397 <a href="https://reviews.llvm.org/D85397">[DWARFYAML][debug_info] Make the &lsquo;Values&rsquo; field optional.</a></p>
-
-<p>D85405 <a href="https://reviews.llvm.org/D85405">[obj2yaml] Test dumping an empty .debug_aranges section.</a></p>
-
-<p>D84496 <a href="https://reviews.llvm.org/D84496">[DWARFYAML] Replace &lsquo;Format&rsquo;, &lsquo;Version&rsquo;, etc with &lsquo;FormParams&rsquo;. NFC.</a></p>
-
-<p>D85296 <a href="https://reviews.llvm.org/D85296">[DWARFYAML][debug_info] Pull out dwarf::FormParams from DWARFYAML::Unit.</a></p>
-
-<p>D85179 <a href="https://reviews.llvm.org/D85179">[DebugInfo][unittest] Use YAML to generate the .debug_loclists section.</a></p>
-
-<p>D85006 <a href="https://reviews.llvm.org/D85006">[DWARFYAML] Offsets should be omitted when the OffsetEntryCount is 0.</a></p>
-
-<p>D84921 <a href="https://reviews.llvm.org/D84921">[DWARFYAML] Make the debug_aranges entry optional.</a></p>
-
-<p>D84952 <a href="https://reviews.llvm.org/D84952">[DWARFYAML] Add helper function getDWARFEmitterByName(). NFC.</a></p>
-
-<p>D85003 <a href="https://reviews.llvm.org/D85003">[DWARFYAML] Add emitDebug[GNU]Pub[names/types] functions. NFC.</a></p>
-
-<p>D84911 <a href="https://reviews.llvm.org/D84911">[DWARFYAML] Make the &lsquo;Length&rsquo; field of the address range table optional.</a></p>
-
-<p>D84907 <a href="https://reviews.llvm.org/D84907">[DWARFYAML] Make the &lsquo;AddressSize&rsquo;, &lsquo;SegmentSelectorSize&rsquo; fields optional.</a></p>
-
-<p>D84624 <a href="https://reviews.llvm.org/D84624">[DWARFYAML] Rename checkListEntryOperands() to checkOperandCount(). NFC.</a></p>
-
-<p>D84618 <a href="https://reviews.llvm.org/D84618">[DWARFYAML] Add support for emitting custom range list content.</a></p>
-
-<p>D83282 <a href="https://reviews.llvm.org/D83282">[DWARFYAML] Refactor: Pull out member functions to DWARFYAMLUtils.cpp.</a></p>
-
-<p>D84383 <a href="https://reviews.llvm.org/D84383">[DWARFYAML] Pull out common helper functions for rnglist and loclist tables. NFC.</a></p>
-
-<p>D84008 <a href="https://reviews.llvm.org/D84008">[DWARFYAML] Refactor emitDebugInfo() to make the length be inferred.</a></p>
-
-<p>D84239 <a href="https://reviews.llvm.org/D84239">[DWARFYAML] Refactor range list table to hold more data structure.</a></p>
-
-<p>D83749 <a href="https://reviews.llvm.org/D83749">[DWARFYAML] Add support for emitting value forms of strx, addrx, etc.</a></p>
-
-<p>D83452 <a href="https://reviews.llvm.org/D83452">[DWARFYAML] Use override instead of virtual for better safety.</a></p>
-
-<p>D83220 <a href="https://reviews.llvm.org/D83220">[DWARFYAML][unittest] Refactor parseDWARFYAML().</a></p>
-
-<p>D82435 <a href="https://reviews.llvm.org/D82435">[DWARFYAML][debug<em>gnu</em>*] Add the missing context <code>IsGNUStyle</code>. NFC.</a></p>
-
-<p>D82933 <a href="https://reviews.llvm.org/D82933">[DWARFYAML][debug_abbrev] Emit 0 byte for terminating abbreviations.</a></p>
-
-<p>D82622 <a href="https://reviews.llvm.org/D82622">[DWARFYAML][debug_info] Replace &lsquo;InitialLength&rsquo; with &lsquo;Format&rsquo; and &lsquo;Length&rsquo;.</a></p>
-
-<p>D82630 <a href="https://reviews.llvm.org/D82630">[ObjectYAML][DWARF] Collect diagnostic message when YAMLParser fails.</a></p>
-
-<p>D82351 <a href="https://reviews.llvm.org/D82351">[ObjectYAML][DWARF] Remove unused context. NFC.</a></p>
-
-<p>D82275 <a href="https://reviews.llvm.org/D82275">[DWARFYAML][debug_info] Add support for error handling.</a></p>
-
-<p>D82173 <a href="https://reviews.llvm.org/D82173">[DWARFYAML][debug_info] Use &lsquo;AbbrCode&rsquo; to index the abbreviation.</a></p>
-
-<p>D81826 <a href="https://reviews.llvm.org/D81826">[DWARFYAML][debug_abbrev] Make the abbreviation code optional.</a></p>
-
-<p>D81915 <a href="https://reviews.llvm.org/D81915">[ObjectYAML][DWARF] Let writeVariableSizedInteger() return Error.</a></p>
-
-<p>D81709 <a href="https://reviews.llvm.org/D81709">[ObjectYAML][DWARF] Let the target address size be inferred from FileHeader.</a></p>
-
-<p>D81529 <a href="https://reviews.llvm.org/D81529">[ObjectYAML][test] Use a single test file to test the empty &lsquo;DWARF&rsquo; entry.</a></p>
-
-<p>D80722 <a href="https://reviews.llvm.org/D80722">[ObjectYAML][DWARF] Make the <code>PubSection</code> optional.</a></p>
-
-<p>D81220 <a href="https://reviews.llvm.org/D81220">[DWARFYAML][debug_ranges] Make the &ldquo;Offset&rdquo; field optional.</a></p>
-
-<p>D81528 <a href="https://reviews.llvm.org/D81528">[DWARFYAML] Add support for emitting DWARF64 .debug_aranges section.</a></p>
-
-<p>D81357 <a href="https://reviews.llvm.org/D81357">[DWARFYAML][debug_ranges] Emit an error message for invalid offset.</a></p>
-
-<p>D81356 <a href="https://reviews.llvm.org/D81356">[ObjectYAML] Add support for error handling in DWARFYAML. NFC.</a></p>
+<p>D80535 <a href="https://reviews.llvm.org/D80535">[ObjectYAML][MachO] Add error handling in MachOEmitter.</a>                             <br>
+D80861 <a href="https://reviews.llvm.org/D80861">[ObjectYAML][DWARF] Let <code>dumpPubSection</code> return <code>DWARFYAML::PubSection</code>.</a>            <br>
+D81063 <a href="https://reviews.llvm.org/D81063">[DWARFYAML][debug_aranges] Replace InitialLength with Format and Length.</a>            <br>
+D81051 <a href="https://reviews.llvm.org/D81051">[ObjectYAML][ELF] Let the endianness of DWARF sections be inferred from FileHeader.</a> <br>
+D86590 <a href="https://reviews.llvm.org/D86590">[DWARFYAML] Make the unit_length and header_length fields optional.</a>                 <br>
+D86537 <a href="https://reviews.llvm.org/D86537">[DWARFYAML] Make the &lsquo;Attributes&rsquo; field optional.</a>                                   <br>
+D83116 <a href="https://reviews.llvm.org/D83116">[DWARFYAML] Add support for referencing different abbrev tables.</a>                    <br>
+D86194 <a href="https://reviews.llvm.org/D86194">[DWARFYAML] Add support for emitting multiple abbrev tables.</a>                        <br>
+D86192 <a href="https://reviews.llvm.org/D86192">[obj2yaml] Refactor the .debug_pub* sections dumper.</a>                                <br>
+D85880 <a href="https://reviews.llvm.org/D85880">[DWARFYAML] Replace InitialLength with Format and Length. NFC.</a>                      <br>
+D85805 <a href="https://reviews.llvm.org/D85805">[DWARFYAML] Make the address size of compilation units optional.</a>                    <br>
+D85821 <a href="https://reviews.llvm.org/D85821">[MachOYAML] Simplify the section data emitting function. NFC.</a>                       <br>
+D85707 <a href="https://reviews.llvm.org/D85707">[DWARFYAML] Let the address size of line tables inferred from the object file.</a>      <br>
+D85506 <a href="https://reviews.llvm.org/D85506">[macho2yaml] Refactor the DWARF section dumpers.</a>                                    <br>
+D85496 <a href="https://reviews.llvm.org/D85496">[macho2yaml] Remove unused functions. NFC.</a>                                          <br>
+D85397 <a href="https://reviews.llvm.org/D85397">[DWARFYAML][debug_info] Make the &lsquo;Values&rsquo; field optional.</a>                           <br>
+D85405 <a href="https://reviews.llvm.org/D85405">[obj2yaml] Test dumping an empty .debug_aranges section.</a>                            <br>
+D84496 <a href="https://reviews.llvm.org/D84496">[DWARFYAML] Replace &lsquo;Format&rsquo;, &lsquo;Version&rsquo;, etc with &lsquo;FormParams&rsquo;. NFC.</a>                <br>
+D85296 <a href="https://reviews.llvm.org/D85296">[DWARFYAML][debug_info] Pull out dwarf::FormParams from DWARFYAML::Unit.</a>            <br>
+D85179 <a href="https://reviews.llvm.org/D85179">[DebugInfo][unittest] Use YAML to generate the .debug_loclists section.</a>             <br>
+D85006 <a href="https://reviews.llvm.org/D85006">[DWARFYAML] Offsets should be omitted when the OffsetEntryCount is 0.</a>               <br>
+D84921 <a href="https://reviews.llvm.org/D84921">[DWARFYAML] Make the debug_aranges entry optional.</a>                                  <br>
+D84952 <a href="https://reviews.llvm.org/D84952">[DWARFYAML] Add helper function getDWARFEmitterByName(). NFC.</a>                       <br>
+D85003 <a href="https://reviews.llvm.org/D85003">[DWARFYAML] Add emitDebug[GNU]Pub[names/types] functions. NFC.</a>                      <br>
+D84911 <a href="https://reviews.llvm.org/D84911">[DWARFYAML] Make the &lsquo;Length&rsquo; field of the address range table optional.</a>            <br>
+D84907 <a href="https://reviews.llvm.org/D84907">[DWARFYAML] Make the &lsquo;AddressSize&rsquo;, &lsquo;SegmentSelectorSize&rsquo; fields optional.</a>          <br>
+D84624 <a href="https://reviews.llvm.org/D84624">[DWARFYAML] Rename checkListEntryOperands() to checkOperandCount(). NFC.</a>            <br>
+D84618 <a href="https://reviews.llvm.org/D84618">[DWARFYAML] Add support for emitting custom range list content.</a>                     <br>
+D83282 <a href="https://reviews.llvm.org/D83282">[DWARFYAML] Refactor: Pull out member functions to DWARFYAMLUtils.cpp.</a>              <br>
+D84383 <a href="https://reviews.llvm.org/D84383">[DWARFYAML] Pull out common helper functions for rnglist and loclist tables. NFC.</a>   <br>
+D84008 <a href="https://reviews.llvm.org/D84008">[DWARFYAML] Refactor emitDebugInfo() to make the length be inferred.</a>                <br>
+D84239 <a href="https://reviews.llvm.org/D84239">[DWARFYAML] Refactor range list table to hold more data structure.</a>                  <br>
+D83749 <a href="https://reviews.llvm.org/D83749">[DWARFYAML] Add support for emitting value forms of strx, addrx, etc.</a>               <br>
+D83452 <a href="https://reviews.llvm.org/D83452">[DWARFYAML] Use override instead of virtual for better safety.</a>                      <br>
+D83220 <a href="https://reviews.llvm.org/D83220">[DWARFYAML][unittest] Refactor parseDWARFYAML().</a>                                    <br>
+D82435 <a href="https://reviews.llvm.org/D82435">[DWARFYAML][debug<em>gnu</em>*] Add the missing context <code>IsGNUStyle</code>. NFC.</a>                 <br>
+D82933 <a href="https://reviews.llvm.org/D82933">[DWARFYAML][debug_abbrev] Emit 0 byte for terminating abbreviations.</a>                <br>
+D82622 <a href="https://reviews.llvm.org/D82622">[DWARFYAML][debug_info] Replace &lsquo;InitialLength&rsquo; with &lsquo;Format&rsquo; and &lsquo;Length&rsquo;.</a>         <br>
+D82630 <a href="https://reviews.llvm.org/D82630">[ObjectYAML][DWARF] Collect diagnostic message when YAMLParser fails.</a>               <br>
+D82351 <a href="https://reviews.llvm.org/D82351">[ObjectYAML][DWARF] Remove unused context. NFC.</a>                                     <br>
+D82275 <a href="https://reviews.llvm.org/D82275">[DWARFYAML][debug_info] Add support for error handling.</a>                             <br>
+D82173 <a href="https://reviews.llvm.org/D82173">[DWARFYAML][debug_info] Use &lsquo;AbbrCode&rsquo; to index the abbreviation.</a>                   <br>
+D81826 <a href="https://reviews.llvm.org/D81826">[DWARFYAML][debug_abbrev] Make the abbreviation code optional.</a>                      <br>
+D81915 <a href="https://reviews.llvm.org/D81915">[ObjectYAML][DWARF] Let writeVariableSizedInteger() return Error.</a>                   <br>
+D81709 <a href="https://reviews.llvm.org/D81709">[ObjectYAML][DWARF] Let the target address size be inferred from FileHeader.</a>        <br>
+D81529 <a href="https://reviews.llvm.org/D81529">[ObjectYAML][test] Use a single test file to test the empty &lsquo;DWARF&rsquo; entry.</a>          <br>
+D80722 <a href="https://reviews.llvm.org/D80722">[ObjectYAML][DWARF] Make the <code>PubSection</code> optional.</a>                                 <br>
+D81220 <a href="https://reviews.llvm.org/D81220">[DWARFYAML][debug_ranges] Make the &ldquo;Offset&rdquo; field optional.</a>                         <br>
+D81528 <a href="https://reviews.llvm.org/D81528">[DWARFYAML] Add support for emitting DWARF64 .debug_aranges section.</a>                <br>
+D81357 <a href="https://reviews.llvm.org/D81357">[DWARFYAML][debug_ranges] Emit an error message for invalid offset.</a>                 <br>
+D81356 <a href="https://reviews.llvm.org/D81356">[ObjectYAML] Add support for error handling in DWARFYAML. NFC.</a></p>
 
 <p><strong>Bugfixes</strong></p>
 
-<p>D85717 <a href="https://reviews.llvm.org/D85717">[DWARFYAML] Teach yaml2obj emit the correct line table program.</a></p>
-
-<p>D85180 <a href="https://reviews.llvm.org/D85180">[YAMLTraits] Fix mapping &lt;none&gt; value that followed by comments.</a></p>
-
-<p>D84640 <a href="https://reviews.llvm.org/D84640">[llvm-readelf] Fix emitting incorrect number of spaces in &lsquo;&ndash;hex-dump&rsquo;.</a></p>
-
-<p>D82621 <a href="https://reviews.llvm.org/D82621">[DWARFYAML][debug_info] Teach yaml2obj emit correct DWARF64 unit header.</a></p>
-
-<p>D82139 <a href="https://reviews.llvm.org/D82139">[DWARFYAML][debug_info] Fix array index out of bounds error.</a></p>
-
-<p>D80862 <a href="https://reviews.llvm.org/D80862">[ObjectYAML][test] Address comments in D80203.</a></p>
+<p>D85717 <a href="https://reviews.llvm.org/D85717">[DWARFYAML] Teach yaml2obj emit the correct line table program.</a>          <br>
+D85180 <a href="https://reviews.llvm.org/D85180">[YAMLTraits] Fix mapping &lt;none&gt; value that followed by comments.</a>       <br>
+D84640 <a href="https://reviews.llvm.org/D84640">[llvm-readelf] Fix emitting incorrect number of spaces in &lsquo;&ndash;hex-dump&rsquo;.</a>  <br>
+D82621 <a href="https://reviews.llvm.org/D82621">[DWARFYAML][debug_info] Teach yaml2obj emit correct DWARF64 unit header.</a> <br>
+D82139 <a href="https://reviews.llvm.org/D82139">[DWARFYAML][debug_info] Fix array index out of bounds error.</a>             <br>
+D80862 <a href="https://reviews.llvm.org/D80862">[ObjectYAML][test] Address comments in D80203.</a></p>
 </main>
 
 <div id="disqus_thread"></div>

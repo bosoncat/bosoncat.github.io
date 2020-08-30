@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Journey with LLVM (GSoC&#39;20 Phase 2) | Somewhere</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="shortcut icon" href="/img/favicon.png" type="image/x-icon" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">$Home</a></li>
+      
+      <li><a href="/archives/">Archives</a></li>
+      
+      <li><a href="/links/">Links</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">My Journey with LLVM (GSoC&rsquo;20 Phase 2)</span></h1>
+
+<h2 class="date">2020/07/30</h2>
+</div>
+
+<main>
+<p>During the second coding period, we’ve implemented the <code>.debug_str_offsets</code>, <code>.debug_rnglists</code> and <code>.debug_loclists</code> section. We’re able to handcraft these 3 sections via the following syntax.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Section</th>
+<th align="left">Syntax</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">debug_str_offsets</td>
+<td align="left"><pre>debug_str_offsets:<br>  - Format:  DWARF32 ## Optional<br>    Length:  0x1234  ## Optional<br>    Version: 5       ## Optional<br>    Padding: 0x00    ## Optional<br>    Offsets: [ 0x01, 0x02, 0x03 ]</pre></td>
+</tr>
+
+<tr>
+<td align="left">debug_rnglists</td>
+<td align="left"><pre>debug_rnglists:<br>  - Format:              DWARF32        ## Optional<br>    Length:              0x1234         ## Optional<br>    Version:             5              ## Optional<br>    AddressSize:         0x08           ## Optional<br>    SegmentSelectorSize: 0x00           ## Optional<br>    OffsetEntryCount:    2              ## Optional<br>    Offsets:             [ 0x01, 0x02 ] ## Optional<br>    Lists:<br>      - Entries:<br>          - Operator: DW_RLE_blah<br>            Values:  [ 0x01, 0x02 ]</pre></td>
+</tr>
+
+<tr>
+<td align="left">debug_loclists<br><br> Note: The .debug_loclists section is implemented, but it hasn’t been landed yet.</td>
+<td align="left"><pre>debug_loclists:<br>  - Format:              DWARF32 ## Optional<br>    Length:              0x1234  ## Optional<br>    Version:             5       ## Optional<br>    AddressSize:         8       ## Optional<br>    SegmentSelectorSize: 0       ## Optional<br>    OffsetEntryCount:    1       ## Optional<br>    Offsets:             [ 1 ]   ## Optional<br>    Lists:<br>      - Entries:<br>          - Operator:          DW_LLE_blah<br>            Values:            [ 0x1234, 0x4321 ]<br>            DescriptorsLength: 0x1234   ## Optional<br>            Descriptors:<br>              - Operator: DW_OP_blah<br>                Values:   [ 0x1234 ]</pre></td>
+</tr>
+</tbody>
+</table>
+
+<p>We’ve also taught <code>yaml2obj</code> to infer the compilation unit’s length for us. Now, we’re able to handcraft the <code>.debug_info</code> section without caring about the length field.</p>
+
+<table>
+<thead>
+<tr>
+<th align="left">Section</th>
+<th align="left">Syntax</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td align="left">debug_info</td>
+<td align="left"><pre>debug_info:<br>  - Format:     DWARF32 ## Optional<br>    Length:     0x1234  ## Optional<br>    Version:    4<br>    AbbrOffset: 0x00<br>    AddrSize:   0x08    ## Optional<br>    Entries:<br>      - AbbrCode: 1<br>        Values:<br>          - Value: 0x1234<br>          - Value: 0x4321</pre></td>
+</tr>
+</tbody>
+</table>
+
+<p>You’ve probably noticed that we still have to calculate the <code>AbbrOffset</code> field manually and it makes handcrafting the <code>.debug_info</code> section a nightmare. In the next coding period, we’re going to address this issue and make <code>yaml2obj</code> able to interlink some DWARF sections. If time permits, we’d also like to add DWARF support to <code>obj2yaml</code>.</p>
+
+<h3 id="areas-in-need-of-improvements">Areas in Need of Improvements</h3>
+
+<p>In the second coding period, I’m not good at splitting a huge change into several pieces of small patches which brings inconvenience to reviewers. I will try to avoid it in the future. Just as what James has pointed out, I should communicate more with others. When I was implementing these DWARF sections, I should learn about people’s requirements and ask others opinions rather than do it myself and implement what I have in my own mind. I haven’t realized it until I work on the <code>.debug_loclists</code> section. Pavel Labath gives me some good advice and comments that I haven’t thought of before!</p>
+
+<h3 id="accepted-patches">Accepted Patches</h3>
+
+<p>D84496 <a href="https://reviews.llvm.org/D84496">[DWARFYAML] Replace &lsquo;Format&rsquo;, &lsquo;Version&rsquo;, etc with &lsquo;FormParams&rsquo;. NFC.</a>              <br>
+D84383 <a href="https://reviews.llvm.org/D84383">[DWARFYAML] Pull out common helper functions for rnglist and loclist tables. NFC.</a> <br>
+D84008 <a href="https://reviews.llvm.org/D84008">[DWARFYAML] Refactor emitDebugInfo() to make the length be inferred.</a>              <br>
+D84239 <a href="https://reviews.llvm.org/D84239">[DWARFYAML] Refactor range list table to hold more data structure.</a>                <br>
+D83624 <a href="https://reviews.llvm.org/D83624">[DWARFYAML] Implement the .debug_rnglists section.</a>                                <br>
+D83853 <a href="https://reviews.llvm.org/D83853">[DWARFYAML] Implement the .debug_str_offsets section.</a>                             <br>
+D83749 <a href="https://reviews.llvm.org/D83749">[DWARFYAML] Add support for emitting value forms of strx, addrx, etc.</a>             <br>
+D83452 <a href="https://reviews.llvm.org/D83452">[DWARFYAML] Use override instead of virtual for better safety.</a>                    <br>
+D83220 <a href="https://reviews.llvm.org/D83220">[DWARFYAML][unittest] Refactor parseDWARFYAML().</a></p>
+
+<h3 id="ongoing-patches">Ongoing Patches</h3>
+
+<p>D84386 <a href="https://reviews.llvm.org/D84386">[DWARFYAML] Add support for emitting custom operands for range list entry.</a> <br>
+D84234 <a href="https://reviews.llvm.org/D84234">[DWARFYAML] Implement the .debug_loclists section.</a></p>
+</main>
+
+<div id="disqus_thread"></div>
+<script type="application/javascript">
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "higuoxing" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+  <footer>
+  <script async src="//cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+  
+  <hr/>
+  &copy;  2017 &ndash; 2019 <a href="https://vgxbj.github.io/">Xing GUO</a> | Powered by <a href="https://github.com/gohugoio/hugo">Hugo</a> | Theme: <a href="https://github.com/yihui/hugo-xmin">Xmin</a>
+  
+  </footer>
+  </body>
+</html>
+
