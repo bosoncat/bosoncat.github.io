@@ -7,7 +7,7 @@ title: "Home"
 
 <div style="font-family: monospace; font-size: 1.2em; border: 1px solid #ddd; box-shadow: 5px 5px 5px #eee; padding: 1em; overflow-x: auto;">
 <strong>👋 Hi there!</strong>
-This is Xing GUO's homepage. Currently, he is a master student in Southeast University.
+This is Xing GUO's homepage. Currently, he is a master student in Southeast University, Nanjing, China.
 </div>
 
 ### Contact Me
