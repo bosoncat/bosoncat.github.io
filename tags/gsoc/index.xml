@@ -20,5 +20,23 @@
       <description>&lt;p&gt;My GSoC comes to an end and this is a report of my work during the last 3 months. My project is adding DWARF support to &lt;code&gt;yaml2obj&lt;/code&gt;, especially &lt;code&gt;yaml2elf&lt;/code&gt;. The original proposal is &lt;a href=&#34;https://docs.google.com/document/d/13wNr4JbXtzaOly-UsFt7vxI3LKXzik_lVU58ICqslWM/edit?usp=sharing&#34;&gt;here&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     
+    <item>
+      <title>My Journey with LLVM (GSoC&#39;20 Phase 2)</title>
+      <link>/archives/my-journey-with-llvm-ii/</link>
+      <pubDate>Thu, 30 Jul 2020 15:31:21 +0800</pubDate>
+      
+      <guid>/archives/my-journey-with-llvm-ii/</guid>
+      <description>&lt;p&gt;During the second coding period, we’ve implemented the &lt;code&gt;.debug_str_offsets&lt;/code&gt;, &lt;code&gt;.debug_rnglists&lt;/code&gt; and &lt;code&gt;.debug_loclists&lt;/code&gt; section. We’re able to handcraft these 3 sections via the following syntax.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>My Journey with LLVM (GSoC&#39;20 Phase 1)</title>
+      <link>/archives/my-journey-with-llvm-i/</link>
+      <pubDate>Tue, 30 Jun 2020 14:12:15 +0800</pubDate>
+      
+      <guid>/archives/my-journey-with-llvm-i/</guid>
+      <description>&lt;p&gt;It has been one month since my proposal gets accepted by GSoC&amp;rsquo;20. I learned a lot and had a wonderful time. Besides, we’ve made some progress towards our goal. Hence, it’s a good time to review what I’ve done and what I’ve learned in the first coding period.&lt;/p&gt;</description>
+    </item>
+    
   </channel>
 </rss>
