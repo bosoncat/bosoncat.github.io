@@ -1,6 +1,7 @@
 ---
 title: "My Journey with LLVM (GSoC'20 Phase 2)"
 date: 2020-07-30T15:31:21+08:00
+tags: ["GSoC", "LLVM"]
 ---
 
 During the second coding period, we’ve implemented the `.debug_str_offsets`, `.debug_rnglists` and `.debug_loclists` section. We’re able to handcraft these 3 sections via the following syntax.

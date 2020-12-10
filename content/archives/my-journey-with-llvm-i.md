@@ -1,6 +1,7 @@
 ---
 title: "My Journey with LLVM (GSoC'20 Phase 1)"
 date: 2020-06-30T14:12:15+08:00
+tags: ["LLVM", "GSoC"]
 ---
 
 It has been one month since my proposal gets accepted by GSoC'20. I learned a lot and had a wonderful time. Besides, we’ve made some progress towards our goal. Hence, it’s a good time to review what I’ve done and what I’ve learned in the first coding period.
